@@ -4,6 +4,7 @@ from numpy import array, zeros, savetxt
 from random import randint
 from PIL import Image, ImageDraw
 import time
+from matplotlib import pyplot as plt
 
 class Application(tk.Frame):
 	CANVAS_WIDTH, CANVAS_HEIGHT = 224, 224
@@ -25,6 +26,13 @@ class Application(tk.Frame):
 		self.init_test()
 		self.img = Image.new("L", (self.CANVAS_WIDTH, self.CANVAS_HEIGHT), 'white')
 		self.imdraw = ImageDraw.Draw(self.img)
+		self.exit = False
+
+	def on_exit(self):
+		self.after_cancel(self.id)
+		for x,y in enumerate(self.classifier):
+			self.classifier[y].close()
+		self.master.destroy()
 
 	def center_window(self):
 	    ws = self.master.winfo_screenwidth()
@@ -75,14 +83,14 @@ class Application(tk.Frame):
 			self.confusion_matrix[int(expected),int(output)] += 1
 		elif expected != '?':
 			self.confusion_matrix[int(expected),10] += 1
-		savetxt('../results/result.txt', self.confusion_matrix, fmt="%d")
-		result = open('../results/result.txt', 'a')
+		savetxt('../output/result.txt', self.confusion_matrix, fmt="%d")
+		result = open('../output/result.txt', 'a')
 		result.write("\nattendue: " + str(expected))
 		result.write("\nsortie: " + str(output))
 		result.write("\ntest: " + str(self.tested))
 		result.write("\nexactitude: " + str(round(self.success/self.tested*100,3)))
 		result.close()
-		result = open('../results/result.txt', 'r')
+		result = open('../output/result.txt', 'r')
 		data = result.read()
 		result.close()
 		self.result.config(text = data)
@@ -137,7 +145,7 @@ class Application(tk.Frame):
 		return self.classifier[self.mode.get()]
 
 	def update_screen(self):
-		self.after(50,self.update_screen)
+		self.id = self.after(50,self.update_screen)
 		if self.testing.get() == 1:
 			self.test()
 

@@ -8,9 +8,10 @@ class PerceptronClassifier(Classifier):
     def __init__(self):
         self.perceptrons = [Perceptron(28*28) for i in range(10)]
 
-    def train(self, images, labels, it=1000):
+    def train(self, images, labels, it=10000):
         for i in range(10):
-            self.perceptrons[i].train(images,labels,i)
+            self.perceptrons[i].train(images,labels,i,it)
+        self.plotError(1000)
 
     def recognize(self,image):
         R = [0 for i in range(10)]
@@ -22,8 +23,18 @@ class PerceptronClassifier(Classifier):
         else:
             return "_"
 
-    def errorRate(self):
-        pass
+    def plotError(self, it):
+        for i in range(10):
+            plt.plot(range(it),self.perceptrons[i].error,label=i)
+            #plt.xscale('log')
+        plt.ylabel('erreur quadratique')
+        plt.xlabel("itération")
+        plt.legend(loc='upper right')
+        plt.savefig('../output/error.png')
+
+    def close(self):
+        plt.close()
+
 
 class Perceptron:
     def __init__(self, d, bias=0):
@@ -39,9 +50,12 @@ class Perceptron:
         return 1 if r>=0.5 else 0
 
     def train(self,images, labels,digit,it=10000, eta=0.01):
-        self.error = zeros(it)
+        errnum = 1000
+        self.error = zeros(errnum)
+        imlist = [randint(0,len(images)-1) for k in range(it)]
         for k in range(it):
-            n = randint(0,len(images)-1)
+            n = imlist[k]
+            imlist.append(n)
             x = array(images[n],dtype="float64")
             output = self.output(x)
             y = int(digit==labels[n])
@@ -49,8 +63,11 @@ class Perceptron:
             if output != y:
                 self.weights += error*eta*x
                 self.bias += error*eta
-            if k > 0:
-                self.error[k] = (self.error[k-1] + error**2)/k
+            if k < errnum:
+                for i in range(errnum):
+                    self.error[k] += (float(digit==labels[imlist[i]])-self.output(array(images[imlist[i]],dtype="float64")))**2
+                self.error[k] /= errnum
+                print(k)
 
     def success_rate(self,data):
         s = 0

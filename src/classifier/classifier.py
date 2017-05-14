@@ -5,3 +5,5 @@ class Classifier(object):
         pass
     def test(self):
         pass
+    def close(self):
+        pass
