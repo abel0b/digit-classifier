@@ -4,4 +4,4 @@ Implementation of differents ML algorithms to recognize handwritten digits using
 
 ## Methods
 + Perceptron
-+ more coming soon
++ MultiLayerPerceptron
