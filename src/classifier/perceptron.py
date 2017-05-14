@@ -1,7 +1,8 @@
 from classifier.classifier import Classifier
 from random import randint
-from numpy import vdot,array,tanh
+from numpy import vdot, array, tanh, zeros
 from random import randint
+import matplotlib.pyplot as plt
 
 class PerceptronClassifier(Classifier):
     def __init__(self):
@@ -21,6 +22,9 @@ class PerceptronClassifier(Classifier):
         else:
             return "_"
 
+    def errorRate(self):
+        pass
+
 class Perceptron:
     def __init__(self, d, bias=0):
         self.d = d
@@ -28,20 +32,25 @@ class Perceptron:
         self.activation_function = tanh
         self.bias = bias
         self.weights = array([0. for i in range(d)])
+        self.error = []
 
     def output(self,x):
         r = self.activation_function(self.bias + vdot(x,self.weights))
         return 1 if r>=0.5 else 0
 
     def train(self,images, labels,digit,it=10000, eta=0.01):
+        self.error = zeros(it)
         for k in range(it):
             n = randint(0,len(images)-1)
             x = array(images[n],dtype="float64")
             output = self.output(x)
             y = int(digit==labels[n])
+            error = y-output
             if output != y:
-                self.weights += (y-output)*eta*x
-                self.bias += (y-output)*eta
+                self.weights += error*eta*x
+                self.bias += error*eta
+            if k > 0:
+                self.error[k] = (self.error[k-1] + error**2)/k
 
     def success_rate(self,data):
         s = 0
