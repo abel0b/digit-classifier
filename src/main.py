@@ -1,7 +1,7 @@
 import tkinter as tk
-from gui.application import Application
+from application import Application
 
-from classifier.perceptron import PerceptronClassifier
+from perceptron import PerceptronClassifier
 
 root = tk.Tk()
 

@@ -1,17 +1,22 @@
-from classifier.classifier import Classifier
+from classifier import Classifier
 from random import randint
 from numpy import vdot, array, tanh, zeros
 from random import randint
 import matplotlib.pyplot as plt
+from time import time
 
 class PerceptronClassifier(Classifier):
     def __init__(self):
         self.perceptrons = [Perceptron(28*28) for i in range(10)]
 
-    def train(self, images, labels, it=10000):
+    def train(self, images, labels, start=0):
+        it = self.cfg['train']
         for i in range(10):
-            self.perceptrons[i].train(images,labels,i,it)
-        self.plotError(1000)
+            self.perceptrons[i].train(images,labels,i,it,self.cfg['plot_error'])
+            if i < 9:
+                print(str(i+1) + '/10 : ' + str(int((10-i-1)*(time()-start)/(i+1))) + 's remaining')
+        if self.cfg['plot_error']:
+            self.plotError(100)
 
     def recognize(self,image):
         R = [0 for i in range(10)]
@@ -49,8 +54,8 @@ class Perceptron:
         r = self.activation_function(self.bias + vdot(x,self.weights))
         return 1 if r>=0.5 else 0
 
-    def train(self,images, labels,digit,it=10000, eta=0.01):
-        errnum = 1000
+    def train(self,images, labels,digit,it=10000, plot_error = False, eta=0.01):
+        errnum = 100
         self.error = zeros(errnum)
         imlist = [randint(0,len(images)-1) for k in range(it)]
         for k in range(it):
@@ -63,11 +68,10 @@ class Perceptron:
             if output != y:
                 self.weights += error*eta*x
                 self.bias += error*eta
-            if k < errnum:
+            if plot_error and k < errnum:
                 for i in range(errnum):
                     self.error[k] += (float(digit==labels[imlist[i]])-self.output(array(images[imlist[i]],dtype="float64")))**2
                 self.error[k] /= errnum
-                print(k)
 
     def success_rate(self,data):
         s = 0

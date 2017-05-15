@@ -5,6 +5,7 @@ from random import randint
 from PIL import Image, ImageDraw
 import time
 from matplotlib import pyplot as plt
+import yaml
 
 class Application(tk.Frame):
 	CANVAS_WIDTH, CANVAS_HEIGHT = 224, 224
@@ -17,16 +18,21 @@ class Application(tk.Frame):
 	def __init__(self, master):
 		tk.Frame.__init__(self, master)
 		self.master = master
+		self.load_config()
 		self.center_window()
 		self.create_widgets()
 		self.grid()
-		self.mndata = MNIST('../data')
+		self.mndata = MNIST(self.cfg['folder']['data'])
 		self.load_data()
 		self.after(0,self.update_screen)
 		self.init_test()
 		self.img = Image.new("L", (self.CANVAS_WIDTH, self.CANVAS_HEIGHT), 'white')
 		self.imdraw = ImageDraw.Draw(self.img)
 		self.exit = False
+
+	def load_config(self):
+		with open("config.yaml", 'r') as ymlfile:
+			self.cfg = yaml.load(ymlfile)
 
 	def on_exit(self):
 		self.after_cancel(self.id)
@@ -83,17 +89,20 @@ class Application(tk.Frame):
 			self.confusion_matrix[int(expected),int(output)] += 1
 		elif expected != '?':
 			self.confusion_matrix[int(expected),10] += 1
-		savetxt('../output/result.txt', self.confusion_matrix, fmt="%d")
+		savetxt(self.cfg['folder']['output'] + 'result.txt', self.confusion_matrix, fmt="%d")
 		result = open('../output/result.txt', 'a')
 		result.write("\nattendue: " + str(expected))
 		result.write("\nsortie: " + str(output))
 		result.write("\ntest: " + str(self.tested))
 		result.write("\nexactitude: " + str(round(self.success/self.tested*100,3)))
 		result.close()
-		result = open('../output/result.txt', 'r')
+		result = open(self.cfg['folder']['output'] + 'result.txt', 'r')
 		data = result.read()
 		result.close()
 		self.result.config(text = data)
+
+	def cancel(self):
+		pass
 
 	def create_widgets(self):
 		tk.Frame.grid(self)
@@ -102,6 +111,7 @@ class Application(tk.Frame):
 		self.canvas = tk.Canvas(self.left, width=self.CANVAS_WIDTH, height=self.CANVAS_HEIGHT, bg="white")
 		self.canvas.pack()
 		tk.Button(self.left, text='Effacer', command=self.clear_canvas, width=25).pack()
+		tk.Button(self.left, text='Annuler', command=self.cancel, width=25).pack()
 		self.canvas.bind("<ButtonPress-1>", self.b1down)
 		self.canvas.bind("<ButtonRelease-1>", self.b1up)
 		self.canvas.bind("<Motion>", self.motion)
@@ -136,10 +146,11 @@ class Application(tk.Frame):
 		self.img = Image.new("L", (self.CANVAS_WIDTH, self.CANVAS_HEIGHT), 'white')
 		self.imdraw = ImageDraw.Draw(self.img)
 
-	def add_classifier(self, label, classifier):
-		self.mode.set(label)
-		tk.Radiobutton(self.modes, text=label,variable=self.mode, value=label,width=14).pack(anchor=tk.N)
-		self.classifier[label] = classifier
+	def add_classifier(self, name, classifier):
+		self.mode.set(name)
+		tk.Radiobutton(self.modes, text=name,variable=self.mode, value=name,width=14).pack(anchor=tk.N)
+		classifier.setConfig(self.cfg['classifier'][name])
+		self.classifier[name] = classifier
 
 	def get_classifier(self):
 		return self.classifier[self.mode.get()]
@@ -154,7 +165,7 @@ class Application(tk.Frame):
 
 	def train(self):
 		start = time.time()
-		self.get_classifier().train(self.mndata.train_images, self.mndata.train_labels)
+		self.get_classifier().train(self.mndata.train_images, self.mndata.train_labels,start)
 		self.log("trained in " + str(time.time() - start) + "s")
 
 

@@ -7,3 +7,5 @@ class Classifier(object):
         pass
     def close(self):
         pass
+    def setConfig(self, cfg):
+        self.cfg = cfg
