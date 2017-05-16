@@ -10,3 +10,4 @@ classifier:
     plot_error: True
   MultilayerPerceptron:
     train: 1000
+    plot_error: True

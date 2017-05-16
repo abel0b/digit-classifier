@@ -4,6 +4,7 @@ from perceptron import Perceptron
 from random import randint
 from utils import activation_prime, sectostr
 import time
+import matplotlib.pyplot as plt
 
 class MultilayerPerceptronClassifier(Classifier):
 
@@ -12,7 +13,17 @@ class MultilayerPerceptronClassifier(Classifier):
 
     def train(self, images, labels, start=0, save_results=False):
         expected_outputs = [[float(labels[k]==i) for i in range(10)] for k in range(len(images))]
-        self.network.backpropagate(images, expected_outputs, start)
+        self.network.backpropagate(images, expected_outputs, start, self.cfg['train'])
+        if self.cfg['plot_error']:
+            self.plotError()
+
+    def plotError(self):
+        cost = self.network.cost
+        plt.plot(range(len(cost)), cost, label='J')
+        plt.ylabel('erreur quadratique')
+        plt.xlabel("n° échantillon")
+        plt.legend(loc='upper right')
+        plt.savefig('../output/error.png')
 
     def predict(self, image):
         return argmax(self.network.output(image))
@@ -42,15 +53,28 @@ class Network:
             next_input = self.layers[k].output(next_input)
         return next_input
 
-    def backpropagate(self, inputs, expected_outputs, start, it=100000, eta=0.1):
+    def backpropagate(self, inputs, expected_outputs, start, it=1000, eta=0.1, subsample_size=100, plot_error=False):
         examples = []
         ti = 0
+        self.cost = [0 for i in range(it//subsample_size)]
+        sample_no = 0
         for i in range(it):
+            if i == 20000:
+                eta = 0.01
+            elif i == 90000:
+                eta = 0.001
             n = randint(0,len(inputs)-1)
             examples.append(n)
             x = inputs[n]
             t = expected_outputs[n]
             z = self.output(x)
+
+
+            if i > 0 and i % subsample_size == 0:
+                sample_no += 1
+            self.cost[sample_no] += 1/2*sum([(z[k] - t[k])**2 for k in range(self.Nout)])
+
+
             # Mise à jour des poids de la couche de sortie
             for k in range(self.Nout):
                 deltak = eta*(t[k]-z[k])*activation_prime(self.layers[1].perceptrons[k].weighted_input)
