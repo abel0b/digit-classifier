@@ -1,4 +1,4 @@
-import tkinter as tk
+
 from mnist import MNIST
 import numpy,random, yaml, re, sys, os
 from PIL import Image, ImageDraw
