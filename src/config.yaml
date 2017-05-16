@@ -1,11 +1,12 @@
 # Fichier de configuration
 folder:
   output: '../output/'
+  classifier: '../output/classifier/'
   data: 'data/'
 
 classifier:
   Perceptron:
     train: 10000
     plot_error: True
-  Multilayer perceptron:
+  MultilayerPerceptron:
     train: 1000

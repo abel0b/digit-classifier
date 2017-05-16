@@ -1,15 +1,16 @@
 from classifier import Classifier
 from random import randint
-from numpy import vdot, array, tanh, zeros
+from numpy import vdot, array, tanh, zeros, argmax
 from random import randint, random
 import matplotlib.pyplot as plt
 from time import time
 
 class PerceptronClassifier(Classifier):
     def __init__(self):
-        self.perceptrons = [Perceptron(28*28) for i in range(10)]
+        sgn = lambda x: 1 if x >= 0 else 0
+        self.perceptrons = [Perceptron(28*28, activation_function = sgn) for i in range(10)]
 
-    def train(self, images, labels, start=0):
+    def train(self, images, labels, start=0, plot_error=False):
         it = self.cfg['train']
         for i in range(10):
             self.perceptrons[i].train(images,labels,i,it,self.cfg['plot_error'])
@@ -18,15 +19,22 @@ class PerceptronClassifier(Classifier):
         if self.cfg['plot_error']:
             self.plotError(100)
 
+    def get_save(self):
+        return [(self.perceptrons[i].weights, self.perceptrons[i].bias) for i in range(10)]
+
+    def load_save(self, save):
+        i = 0
+        for weights, bias in save:
+            self.perceptrons[i].weights = weights
+            self.perceptrons[i].bias = bias
+            i += 1
+
     def predict(self,image):
-        R = [0 for i in range(10)]
-        for i in range(10):
-            if self.perceptrons[i].output(image) == 1:
-                R[i] = 1
+        R = [self.perceptrons[i].output(image) for i in range(10)]
         if R.count(1) == 1:
             return R.index(1)
         else:
-            return "_"
+            return '_'
 
     def plotError(self, it):
         for i in range(10):
@@ -42,10 +50,10 @@ class PerceptronClassifier(Classifier):
 
 
 class Perceptron:
-    def __init__(self, d, bias=0):
+    def __init__(self, d, bias=0, activation_function = tanh):
         self.d = d
         #self.activation_function = lambda t: 0 if t < 0 else 1
-        self.activation_function = tanh
+        self.activation_function = activation_function
         self.activation_prime = lambda x: 1. + tanh(x)**2
         self.bias = bias
         self.weights = array([random() for i in range(d)])

@@ -3,31 +3,38 @@ from numpy import array, argmax, zeros
 from perceptron import Perceptron
 from random import randint
 from utils import activation_prime, sectostr
-from time import time
+import time
 
 class MultilayerPerceptronClassifier(Classifier):
 
     def __init__(self):
         self.network = Network(784,15,10)
 
-    def train(self, images, labels, start=0):
+    def train(self, images, labels, start=0, save_results=False):
         expected_outputs = [[float(labels[k]==i) for i in range(10)] for k in range(len(images))]
         self.network.backpropagate(images, expected_outputs, start)
 
     def predict(self, image):
         return argmax(self.network.output(image))
 
+    def get_save(self):
+        return [[(self.network.layers[k].perceptrons[i].weights, self.network.layers[k].perceptrons[i].bias) for i in range(self.network.sizes[k+1])] for k in range(self.network.number_layers)]
+
+    def load_save(self, save):
+        for k in range(self.network.number_layers):
+            self.network.layers[k].set_weights(save[k])
+
 
 class Network:
 
     def __init__(self, Nin, Nhidden, Nout):
-        sizes = [Nin, Nhidden, Nout]
-        self.number_layers = len(sizes)-1
+        self.sizes = [Nin, Nhidden, Nout]
+        self.number_layers = len(self.sizes)-1
         self.Nin = Nin
         self.Nhidden = Nhidden
         self.Nout = Nout
-        self.input_size = sizes[0]
-        self.layers = [Layer(sizes[layer],sizes[layer+1]) for layer in range(self.number_layers)]
+        self.input_size = self.sizes[0]
+        self.layers = [Layer(self.sizes[layer],self.sizes[layer+1]) for layer in range(self.number_layers)]
 
     def output(self, x):
         next_input = x
@@ -35,7 +42,7 @@ class Network:
             next_input = self.layers[k].output(next_input)
         return next_input
 
-    def backpropagate(self, inputs, expected_outputs, start, it=1000000, eta=0.1):
+    def backpropagate(self, inputs, expected_outputs, start, it=100000, eta=0.1):
         examples = []
         ti = 0
         for i in range(it):
@@ -60,7 +67,7 @@ class Network:
 
             if i > 0 and i % (it//100) == 0:
                 ti += 1
-                print(str(ti)+'% :' + sectostr((time()-start)/i/it*(it-i)) + ' remaining')
+                print(str(ti)+'% : ' + sectostr((it-i)*(time.time()-start)/i) + ' remaining')
 
 class Layer:
     size = 0
@@ -73,3 +80,10 @@ class Layer:
     def output(self, input):
         self.out = array([self.perceptrons[k].output(input) for k in range(self.outsize)], dtype="float64")
         return self.out
+
+    def set_weights(self, weights):
+        i = 0
+        for omega, bias in weights:
+            self.perceptrons[i].weights = omega
+            self.perceptrons[i].bias = bias
+            i += 1
