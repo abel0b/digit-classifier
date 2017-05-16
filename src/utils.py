@@ -15,3 +15,6 @@ def activation(x):
 
 def activation_prime(x):
     return 1. + tanh(x)**2
+
+def log(*argv):
+    print(*argv)

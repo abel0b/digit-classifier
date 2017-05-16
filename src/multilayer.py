@@ -1,9 +1,8 @@
 from classifier import Classifier
-from numpy import array, argmax, zeros
 from perceptron import Perceptron
 from random import randint
 from utils import activation_prime, sectostr
-import time
+import numpy, time
 import matplotlib.pyplot as plt
 
 class MultilayerPerceptronClassifier(Classifier):
@@ -11,22 +10,24 @@ class MultilayerPerceptronClassifier(Classifier):
     def __init__(self):
         self.network = Network(784,15,10)
 
-    def train(self, images, labels, start=0, save_results=False):
+    def train(self, images, labels, start=0):
         expected_outputs = [[float(labels[k]==i) for i in range(10)] for k in range(len(images))]
         self.network.backpropagate(images, expected_outputs, start, self.cfg['train'])
         if self.cfg['plot_error']:
-            self.plotError()
+            self.plot_error()
 
-    def plotError(self):
+    def plot_error(self):
         cost = self.network.cost
-        plt.plot(range(len(cost)), cost, label='J')
+        numpy.save('../output/error.npy', numpy.array(cost))
+        l = numpy.array(list(range(len(cost))))
+        plt.plot([100*k for k in range(len(l))], cost, label='J')
         plt.ylabel('erreur quadratique')
         plt.xlabel("n° échantillon")
         plt.legend(loc='upper right')
         plt.savefig('../output/error.png')
 
     def predict(self, image):
-        return argmax(self.network.output(image))
+        return numpy.argmax(self.network.output(image))
 
     def get_save(self):
         return [[(self.network.layers[k].perceptrons[i].weights, self.network.layers[k].perceptrons[i].bias) for i in range(self.network.sizes[k+1])] for k in range(self.network.number_layers)]
@@ -102,7 +103,7 @@ class Layer:
         self.perceptrons = [Perceptron(insize) for k in range(outsize)]
 
     def output(self, input):
-        self.out = array([self.perceptrons[k].output(input) for k in range(self.outsize)], dtype="float64")
+        self.out = numpy.array([self.perceptrons[k].output(input) for k in range(self.outsize)], dtype="float64")
         return self.out
 
     def set_weights(self, weights):

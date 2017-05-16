@@ -14,7 +14,7 @@ class PerceptronClassifier(Classifier):
             if i < 9:
                 print(str(i+1) + '/10 : ' + str(int((10-i-1)*(time.time()-start)/(i+1))) + 's remaining')
         if self.cfg['plot_error']:
-            self.plotError(100)
+            self.plot_error(100)
 
     def get_save(self):
         return [(self.perceptrons[i].weights, self.perceptrons[i].bias) for i in range(10)]
@@ -33,8 +33,7 @@ class PerceptronClassifier(Classifier):
         else:
             return '_'
 
-    def plotError(self, it):
-        print("tolooooooooooooooooo")
+    def plot_error(self, it):
         for i in range(10):
             plt.plot(range(it),self.perceptrons[i].error,label=i)
             #plt.xscale('log')
