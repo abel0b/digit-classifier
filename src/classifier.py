@@ -1,9 +1,9 @@
 class Classifier(object):
     def __init__(self):
         pass
-    def train(self):
+    def train(self, images, labels):
         pass
-    def test(self):
+    def predict(self,image):
         pass
     def close(self):
         pass

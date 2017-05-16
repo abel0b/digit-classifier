@@ -1,7 +1,7 @@
 from classifier import Classifier
 from random import randint
 from numpy import vdot, array, tanh, zeros
-from random import randint
+from random import randint, random
 import matplotlib.pyplot as plt
 from time import time
 
@@ -18,7 +18,7 @@ class PerceptronClassifier(Classifier):
         if self.cfg['plot_error']:
             self.plotError(100)
 
-    def recognize(self,image):
+    def predict(self,image):
         R = [0 for i in range(10)]
         for i in range(10):
             if self.perceptrons[i].output(image) == 1:
@@ -46,13 +46,20 @@ class Perceptron:
         self.d = d
         #self.activation_function = lambda t: 0 if t < 0 else 1
         self.activation_function = tanh
+        self.activation_prime = lambda x: 1. + tanh(x)**2
         self.bias = bias
-        self.weights = array([0. for i in range(d)])
+        self.weights = array([random() for i in range(d)])
         self.error = []
 
     def output(self,x):
-        r = self.activation_function(self.bias + vdot(x,self.weights))
-        return 1 if r>=0.5 else 0
+        self.weighted_input = self.bias + vdot(x,self.weights)
+        r = self.activation_function(self.weighted_input)
+        #return 1 if r>=0.5 else 0
+        return r
+
+    def update_weights(self, delta, vec):
+        self.weights += delta*array(vec, dtype="float64")
+        self.bias += delta
 
     def train(self,images, labels,digit,it=10000, plot_error = False, eta=0.01):
         errnum = 100

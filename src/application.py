@@ -78,7 +78,7 @@ class Application(tk.Frame):
 		self.tested += 1
 		n = randint(0,len(self.mndata.test_images)-1)
 		expected = self.mndata.test_labels[n]
-		output = self.recognize(self.mndata.test_images[n])
+		output = self.predict(self.mndata.test_images[n])
 		self.print_matrix(self.mndata.test_images[n], expected)
 		self.update_info(expected,output)
 
@@ -160,8 +160,8 @@ class Application(tk.Frame):
 		if self.testing.get() == 1:
 			self.test()
 
-	def recognize(self,image):
-		return self.get_classifier().recognize(image)
+	def predict(self,image):
+		return self.get_classifier().predict(image)
 
 	def train(self):
 		start = time.time()
@@ -181,7 +181,7 @@ class Application(tk.Frame):
 		for i in range(28):
 			for j in range(28):
 				image[i*28+j] = 255 - self.img.load()[j,i]
-		self.update_info("?",self.recognize(image))
+		self.update_info("?",self.predict(image))
 
 	def motion(self, event):
 		self.lastx, self.lasty = event.x, event.y

@@ -1,3 +1,4 @@
+from math import tanh
 
 def sectostr(sec):
     sec = int(sec)
@@ -6,5 +7,11 @@ def sectostr(sec):
     time = ''
     if minuts > 0:
         time += str(minuts) + 'min'
-    time += seconds + 's'
+    time += str(seconds) + 's'
     return time
+
+def activation(x):
+    return tanh(x)
+
+def activation_prime(x):
+    return 1. + tanh(x)**2

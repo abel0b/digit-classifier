@@ -7,5 +7,5 @@ classifier:
   Perceptron:
     train: 10000
     plot_error: True
-  Multi-layer Perceptron:
+  Multilayer perceptron:
     train: 1000
