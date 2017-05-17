@@ -4,7 +4,7 @@ from PIL import Image, ImageDraw
 import time
 from matplotlib import pyplot as plt
 import datetime as dt
-from utils import log
+from utils import log, time_remaining
 
 class Application():
 	classifier = {}
@@ -34,24 +34,27 @@ class Application():
 	def set_window(self, win):
 		self.win = win
 
-	def test(self):
-		self.tested += 1
+	def test_random(self):
 		n = random.randint(0,len(self.mndata.test_images)-1)
 		expected = self.mndata.test_labels[n]
 		output = self.predict(self.mndata.test_images[n])
 		if self.win != None:
 			self.win.print_matrix(self.mndata.test_images[n], expected)
+		self.test(expected, output)
+
+	def test(self, expected, output):
+		self.tested += 1
 		self.update_info(expected,output)
 
-	def test_multiple(self, test_number):
+	def test_all(self):
 		self.load_last_classifier(self.classifier_name)
-		percent = 1
+		test_number = len(self.mndata.test_images)
+		start = time.time()
 		for t in range(test_number):
-			self.test()
+			self.test(self.mndata.test_labels[t], self.predict(self.mndata.test_images[t]))
 			if t % (test_number // 100) == 0:
-				print(percent,'%')
-				percent += 1
-		print("results saved in ", self.cfg['folder']['output'] + 'results.txt')
+				print(str(t/test_number*100) + '% : ' + time_remaining(start, t, test_number) + ' remaining')
+		print("results saved in ", self.cfg['folder']['output'] + 'result.txt')
 
 	def load_last_classifier(self, classifier_name):
 		l = os.listdir(self.cfg['folder']['classifier'])
@@ -76,6 +79,7 @@ class Application():
 		result.write("\nattendue: " + str(expected))
 		result.write("\nsortie: " + str(output))
 		result.write("\ntest: " + str(self.tested))
+		result.write("\nsucces: " + str(self.success))
 		result.write("\nexactitude: " + str(round(self.success/self.tested*100,3)))
 		result.close()
 		result = open(self.cfg['folder']['output'] + 'result.txt', 'r')
@@ -102,6 +106,7 @@ class Application():
 
 	def train(self, save_classifier=False):
 		start = time.time()
+		self.mndata.train_images = numpy.array(self.mndata.train_images, dtype="float64") / 255
 		self.get_classifier().train(self.mndata.train_images, self.mndata.train_labels,start)
 		log("trained in " + str(time.time() - start) + "s")
 		filepath = self.cfg['folder']['classifier'] + self.classifier_name + '_' + dt.datetime.now().strftime("%Y-%m-%d_%H:%M:%S") + '.npy'

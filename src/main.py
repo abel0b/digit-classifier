@@ -33,4 +33,4 @@ else:
     if args.action == 'train':
         app.train(save_classifier=True)
     elif args.action == 'test':
-        app.test_multiple(1000)
+        app.test_all()

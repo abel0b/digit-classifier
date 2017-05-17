@@ -1,6 +1,7 @@
 from classifier import Classifier
 import random, numpy, time
 import matplotlib.pyplot as plt
+from utils import sigmoid
 
 class PerceptronClassifier(Classifier):
     def __init__(self):
@@ -27,11 +28,8 @@ class PerceptronClassifier(Classifier):
             i += 1
 
     def predict(self,image):
-        R = [self.perceptrons[i].output(image) for i in range(10)]
-        if R.count(1) == 1:
-            return R.index(1)
-        else:
-            return '_'
+        R = numpy.array([self.perceptrons[i].output(image) for i in range(10)])
+        return numpy.argmax(R)
 
     def plot_error(self, it):
         for i in range(10):
@@ -47,21 +45,16 @@ class PerceptronClassifier(Classifier):
 
 
 class Perceptron:
-    def __init__(self, d, bias=0, activation_function = numpy.tanh):
+    def __init__(self, d, bias=0, activation_function = sigmoid):
         self.d = d
-        #self.activation_function = lambda t: 0 if t < 0 else 1
         self.activation_function = activation_function
-        self.activation_prime = lambda x: 1. + numpy.tanh(x)**2
         self.bias = bias
         self.weights = numpy.array([random.random() for i in range(d)])
-        self.weights = numpy.array([random.randint(0,1000) for i in range(d)])
-        self.weights = self.weights / numpy.sum(self.weights)
         self.error = []
 
     def output(self,x):
         self.weighted_input = self.bias + numpy.vdot(x,self.weights)
         r = self.activation_function(self.weighted_input)
-        #return 1 if r>=0.5 else 0
         return r
 
     def update_weights(self, delta, vec):

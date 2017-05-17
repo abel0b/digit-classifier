@@ -9,7 +9,6 @@ import datetime as dt
 
 class Window(tkinter.Frame):
     CANVAS_WIDTH, CANVAS_HEIGHT = 224, 224
-    WIN_WIDTH = 448
     WIN_HEIGHT = 310
     lastx, lasty = 0, 0
     b1down = False
@@ -28,10 +27,9 @@ class Window(tkinter.Frame):
         self.exit = False
         i = 0
         for name in app.classifier:
-            classifier = app.classifier[name]
             tkinter.Radiobutton(self.modes, text=name,variable=self.mode, value=name).grid(row=i,sticky=tkinter.W)
-            self.mode.set(name)
             i += 1
+        self.mode.set(app.classifier_name)
 
     def on_exit(self):
         for x,y in enumerate(self.app.classifier):
@@ -58,7 +56,7 @@ class Window(tkinter.Frame):
         if self.app.classifier_name != self.mode.get():
             self.app.classifier_name = self.mode.get()
         if self.testing.get() == 1:
-            self.app.test()
+            self.app.test_random()
 
     def menu_load_classifier(self):
         self.top = tkinter.Toplevel(width=300,height=300)
@@ -78,7 +76,7 @@ class Window(tkinter.Frame):
     def create_widgets(self):
         tkinter.Frame.grid(self)
         self.grid_columnconfigure(0, weight=1, uniform="fred")
-        self.left = tkinter.Frame(self, height=self.WIN_HEIGHT)
+        self.left = tkinter.Frame(self)
         self.canvas = tkinter.Canvas(self.left, width=self.CANVAS_WIDTH, height=self.CANVAS_HEIGHT, bg="white")
         self.canvas.pack()
         tkinter.Button(self.left, text='Effacer', command=self.clear_canvas, width=25).pack()
@@ -90,7 +88,7 @@ class Window(tkinter.Frame):
         self.left.grid(row=0,sticky=tkinter.NW)
 
         #center
-        self.center = tkinter.Frame(self, height=self.WIN_HEIGHT)
+        self.center = tkinter.Frame(self)
         self.center.grid(row=0, column=1, sticky=tkinter.NW)
         self.center_canvas = tkinter.Canvas(self.center, height=224, width=224, bg="white")
         self.center_canvas.grid(row=0, sticky=tkinter.EW)
@@ -99,7 +97,7 @@ class Window(tkinter.Frame):
         tkinter.Button(self.center, text='Charger', command=self.menu_load_classifier).grid(row=3,sticky=tkinter.EW)
 
         #sidebar
-        self.sidebar = tkinter.Frame(self, height=self.WIN_HEIGHT, padx=5, pady=5)
+        self.sidebar = tkinter.Frame(self, padx=5, pady=5)
         self.sidebar.grid(row=0, column=2, sticky=tkinter.NW+tkinter.SE)
         self.result = tkinter.Label(self.sidebar, text='')
         self.modes = tkinter.LabelFrame(self.sidebar, text='Classifieur')
