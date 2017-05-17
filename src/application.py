@@ -1,4 +1,3 @@
-import tkinter as tk
 from mnist import MNIST
 import numpy,random, yaml, re, sys, os
 from PIL import Image, ImageDraw
@@ -45,14 +44,14 @@ class Application():
 		self.update_info(expected,output)
 
 	def test_multiple(self, test_number):
-		self.load_last_classifier(self.mode.get())
+		self.load_last_classifier(self.classifier_name)
 		percent = 1
 		for t in range(test_number):
 			self.test()
 			if t % (test_number // 100) == 0:
 				print(percent,'%')
 				percent += 1
-		print("results numpy.saved in ", self.cfg['folder']['output'] + 'results.txt')
+		print("results saved in ", self.cfg['folder']['output'] + 'results.txt')
 
 	def load_last_classifier(self, classifier_name):
 		l = os.listdir(self.cfg['folder']['classifier'])
@@ -63,7 +62,7 @@ class Application():
 			print("python3 main.py " + classifier_name + " train")
 			sys.exit()
 		else:
-			self.load_classifier(l[0])
+			self.load_classifier(l[-1])
 
 	def update_info(self,expected, output):
 		if output == expected:

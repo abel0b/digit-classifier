@@ -9,16 +9,16 @@ import datetime as dt
 
 class Window(tkinter.Frame):
     CANVAS_WIDTH, CANVAS_HEIGHT = 224, 224
-    WIN_WIDTH = 610
-    WIN_HEIGHT = 285
+    WIN_WIDTH = 448
+    WIN_HEIGHT = 310
     lastx, lasty = 0, 0
     b1down = False
 
     def __init__(self, master, app):
         tkinter.Frame.__init__(self, master)
         self.master = master
+        master.resizable(width=False, height=False)
         self.app = app
-        self.center_window()
         self.create_widgets()
         self.grid()
         self.after(0,self.update_screen)
@@ -26,24 +26,17 @@ class Window(tkinter.Frame):
         self.img = Image.new("L", (self.CANVAS_WIDTH, self.CANVAS_HEIGHT), 'white')
         self.imdraw = ImageDraw.Draw(self.img)
         self.exit = False
+        i = 0
         for name in app.classifier:
             classifier = app.classifier[name]
-            tkinter.Radiobutton(self.modes, text=name,variable=self.mode, value=name,width=14).pack(anchor=tkinter.N)
+            tkinter.Radiobutton(self.modes, text=name,variable=self.mode, value=name).grid(row=i,sticky=tkinter.W)
             self.mode.set(name)
+            i += 1
 
     def on_exit(self):
         for x,y in enumerate(self.app.classifier):
             self.app.classifier[y].close()
         self.master.destroy()
-
-    def center_window(self):
-        ws = self.master.winfo_screenwidth()
-        hs = self.master.winfo_screenheight()
-        x = (ws/2) - (self.WIN_WIDTH/2)
-        y = (hs/2) - (self.WIN_HEIGHT/2)
-        self.master.geometry('%dx%d+%d+%d' % (self.WIN_WIDTH, self.WIN_HEIGHT, x, y))
-
-
 
     def log(self, message):
         print(message)
@@ -76,47 +69,45 @@ class Window(tkinter.Frame):
         for classifier in classifiers:
             self.list_classifiers.insert(tkinter.END, classifier)
         self.list_classifiers.pack()
-        button = tkinter.Button(self.top, text="Annuler", command=self.top.destroy)
-        button.pack()
-        button = tkinter.Button(self.top, text="Charger", command=self.load_classifier)
-        button.pack()
+        tkinter.Button(self.top, text="Annuler", command=self.top.destroy).pack()
+        tkinter.Button(self.top, text="Charger", command=self.load_classifier).pack()
 
     def load_classifier(self):
         self.app.load_classifier(self.list_classifiers.get(tkinter.ACTIVE))
 
     def create_widgets(self):
         tkinter.Frame.grid(self)
-        #left
-        self.left = tkinter.Frame(self, width=self.CANVAS_WIDTH, height=self.WIN_HEIGHT)
+        self.grid_columnconfigure(0, weight=1, uniform="fred")
+        self.left = tkinter.Frame(self, height=self.WIN_HEIGHT)
         self.canvas = tkinter.Canvas(self.left, width=self.CANVAS_WIDTH, height=self.CANVAS_HEIGHT, bg="white")
         self.canvas.pack()
         tkinter.Button(self.left, text='Effacer', command=self.clear_canvas, width=25).pack()
-        tkinter.Button(self.left, text='Charger', command=self.menu_load_classifier, width=25).pack()
         self.canvas.bind("<ButtonPress-1>", self.b1down)
         self.canvas.bind("<ButtonRelease-1>", self.b1up)
         self.canvas.bind("<Motion>", self.motion)
         self.b1down = False
         self.canvas.config(cursor="dot")
-        self.left.grid(row=0,column=0, sticky=tkinter.NW)
+        self.left.grid(row=0,sticky=tkinter.NW)
 
         #center
-        self.center = tkinter.Frame(self, width=224,height=self.WIN_HEIGHT)
-        self.center_canvas = tkinter.Canvas(self.center, width=224,height=224,bg="white")
-        self.center.grid(row=0,column=1, sticky=tkinter.NW)
-        self.center_canvas.pack(anchor=tkinter.NW)
-        tkinter.Button(self.center, text='Chiffre aléatoire', command=self.app.test, width=25).pack()
-        tkinter.Button(self.center, text='Entrainer', command=self.app.train, width=25).pack()
+        self.center = tkinter.Frame(self, height=self.WIN_HEIGHT)
+        self.center.grid(row=0, column=1, sticky=tkinter.NW)
+        self.center_canvas = tkinter.Canvas(self.center, height=224, width=224, bg="white")
+        self.center_canvas.grid(row=0, sticky=tkinter.EW)
+        tkinter.Button(self.center, text='Chiffre aléatoire', command=self.app.test).grid(row=1, sticky=tkinter.EW)
+        tkinter.Button(self.center, text='Entrainer', command=self.app.train).grid(row=2, sticky=tkinter.EW)
+        tkinter.Button(self.center, text='Charger', command=self.menu_load_classifier).grid(row=3,sticky=tkinter.EW)
 
         #sidebar
-        self.sidebar = tkinter.Frame(self, width=220, height=self.WIN_HEIGHT, padx=5, pady=5)
-        self.sidebar.grid(row=0,column=2,sticky=tkinter.N)
-        self.result = tkinter.Label(self.sidebar, text='', justify=tkinter.LEFT)
-        self.modes = tkinter.LabelFrame(self.sidebar, text='Classifieur', width=224)
-        self.modes.pack(anchor=tkinter.W)
+        self.sidebar = tkinter.Frame(self, height=self.WIN_HEIGHT, padx=5, pady=5)
+        self.sidebar.grid(row=0, column=2, sticky=tkinter.NW+tkinter.SE)
+        self.result = tkinter.Label(self.sidebar, text='')
+        self.modes = tkinter.LabelFrame(self.sidebar, text='Classifieur')
+        self.modes.grid(row=0, sticky=tkinter.NW+tkinter.E)
         self.mode = tkinter.StringVar()
         self.testing = tkinter.IntVar()
-        tkinter.Checkbutton(self.sidebar, text='Tester', var=self.testing, command=self.app.init_test, width=14).pack()
-        self.result.pack(anchor=tkinter.W)
+        tkinter.Checkbutton(self.sidebar, text='Tester', var=self.testing, command=self.app.init_test).grid(row=1, sticky=tkinter.W)
+        self.result.grid(row=2)
 
     def grid(self):
         pass
@@ -136,7 +127,7 @@ class Window(tkinter.Frame):
         self.b1down = True
 
     def b1up(self, event):
-        self.tested += 1
+        self.app.tested += 1
         self.b1down = False
         self.img = self.img.resize((28,28))
         self.print_matrix(self.img.load())
@@ -144,7 +135,7 @@ class Window(tkinter.Frame):
         for i in range(28):
             for j in range(28):
                 image[i*28+j] = 255 - self.img.load()[j,i]
-        self.update_info("?",self.predict(image))
+        self.app.update_info("?",self.app.predict(image))
 
     def motion(self, event):
         self.lastx, self.lasty = event.x, event.y
