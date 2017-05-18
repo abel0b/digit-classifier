@@ -94,7 +94,7 @@ class Network:
                 self.layers[0].perceptrons[j].update_weights((1-alpha)*eta*deltaj, x)
                 if i > 1:
                     self.layers[0].perceptrons[j].update_weights(alpha*eta,lastj[j])
-                lastj[j] = eta * deltaj * x
+                lastj[j] = 0
 
             if i > 0 and i % (it//100) == 0:
                 ti += 1

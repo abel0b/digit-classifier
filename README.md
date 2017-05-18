@@ -1,7 +1,7 @@
 # Handwritten digit recognition
 
-Implementation of differents ML algorithms to recognize handwritten digits using MNIST dataset.
+Implementation of different ML algorithms to recognize handwritten digits from MNIST dataset.
 
-## Methods
+## Classifiers
 + Perceptron
 + MultiLayerPerceptron

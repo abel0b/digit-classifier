@@ -24,6 +24,5 @@ def time_remaining(start, i, imax):
 def sigmoid(x):
     return 1/(1+exp(-x))
 
-
 def sigmoid_prime(x):
-    return exp(-x)/(1+exp(-x))**2
+    return sigmoid(x)(1-sigmoid(x))
