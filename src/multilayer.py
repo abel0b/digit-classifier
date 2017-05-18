@@ -1,7 +1,7 @@
 from classifier import Classifier
 from perceptron import Perceptron
 from random import randint
-from utils import sigmoid_prime, time_remaining
+from utils import sigmoid_prime, print_remaining_time, timer_start
 import numpy, time
 import matplotlib.pyplot as plt
 
@@ -54,14 +54,15 @@ class Network:
             next_input = self.layers[k].output(next_input)
         return next_input
 
-    def backpropagate(self, inputs, expected_outputs, start=0, it=100000, eta=1, subsample_size=1, plot_error=True):
+    def backpropagate(self, inputs, expected_outputs, it=100000, eta=1, subsample_size=1, plot_error=True):
         examples = []
         alpha = 0.2
         ti = 0
-        self.cost = [0 for i in range(it//subsample_size)]
+        self.cost = numpy.zeros(it//subsample_size, dtype="float64")
         sample_no = 0
-        lastk = [numpy.zeros(self.Nhidden, dtype="float64") for k in range(self.Nout)]
-        lastj = [numpy.zeros(self.Nin, dtype="float64") for j in range(self.Nhidden)]
+        '''lastk = [numpy.zeros(self.Nhidden, dtype="float64") for k in range(self.Nout)]
+        lastj = [numpy.zeros(self.Nin, dtype="float64") for j in range(self.Nhidden)]'''
+        timer_start()
         for i in range(it):
             n = randint(0,len(inputs)-1)
             examples.append(n)
@@ -77,11 +78,11 @@ class Network:
             # Mise à jour des poids de la couche de sortie
             for k in range(self.Nout):
                 deltak = (t[k]-z[k])*sigmoid_prime(self.layers[1].perceptrons[k].weighted_input)
-                #self.layers[1].perceptrons[k].update_weights(eta*deltak,self.layers[0].out)
-                self.layers[1].perceptrons[k].update_weights((1-alpha)*eta*deltak,self.layers[0].out)
+                self.layers[1].perceptrons[k].update_weights(eta*deltak,self.layers[0].out)
+                '''self.layers[1].perceptrons[k].update_weights((1-alpha)*eta*deltak,self.layers[0].out)
                 if i > 1:
                     self.layers[1].perceptrons[k].update_weights(alpha*eta,lastk[k])
-                lastk[k] = deltak * self.layers[0].out
+                lastk[k] = deltak * self.layers[0].out'''
 
             # Mise à jour des poids de la couche d'entrée
             for j in range(self.Nhidden):
@@ -90,15 +91,13 @@ class Network:
                     deltak = (t[k]-z[k])*sigmoid_prime(self.layers[1].perceptrons[k].weighted_input)
                     deltaj += deltak*self.layers[1].perceptrons[k].weights[j]
                 deltaj *= sigmoid_prime(self.layers[0].perceptrons[j].weighted_input)
-                #self.layers[0].perceptrons[j].update_weights(eta*deltaj, x)
-                self.layers[0].perceptrons[j].update_weights((1-alpha)*eta*deltaj, x)
+                self.layers[0].perceptrons[j].update_weights(eta*deltaj, x)
+                '''self.layers[0].perceptrons[j].update_weights((1-alpha)*eta*deltaj, x)
                 if i > 1:
                     self.layers[0].perceptrons[j].update_weights(alpha*eta,lastj[j])
-                lastj[j] = 0
+                lastj[j] = 0'''
 
-            if i > 0 and i % (it//100) == 0:
-                ti += 1
-                print(str(ti)+'% : ' + time_remaining(start, i, it) + ' remaining')
+            print_remaining_time(i, it)
 
 class Layer:
     size = 0

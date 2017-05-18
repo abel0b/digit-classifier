@@ -1,6 +1,11 @@
 from math import exp
-from time import time
+from time import time, sleep
 import numpy
+import sys
+
+global start
+
+start = time()
 
 def sectostr(sec):
     sec = int(sec)
@@ -15,14 +20,18 @@ def sectostr(sec):
 def log(*argv):
     print(*argv)
 
-def time_remaining(start, i, imax):
-    if i == 0:
-        return '_'
-    else:
-        return sectostr((imax-i)*(time()-start)/i)
+def timer_start():
+    start = time()
+
+def print_remaining_time(i, imax):
+    n = 100
+    ti = i // (imax // n)
+    if i > 0 and i % (imax//n) == 0:
+        msg = str(ti) + '% : ' + sectostr((imax-i)*(time()-start)/i) + ' restantes'
+        print(msg)
 
 def sigmoid(x):
     return 1/(1+exp(-x))
 
 def sigmoid_prime(x):
-    return sigmoid(x)(1-sigmoid(x))
+    return sigmoid(x)*(1-sigmoid(x))
