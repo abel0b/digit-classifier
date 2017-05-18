@@ -4,7 +4,7 @@ from PIL import Image, ImageDraw
 import time
 from matplotlib import pyplot as plt
 import datetime as dt
-from utils import log, time_remaining
+from utils import log, print_remaining_time, timer_start
 
 class Application():
 	classifier = {}
@@ -25,6 +25,11 @@ class Application():
 		self.mndata.load_training()
 		self.mndata.load_testing()
 		log("data loaded")
+		self.normalize_data()
+
+	def normalize_data(self):
+		self.mndata.train_images = numpy.array(self.mndata.train_images, dtype="float64") / 255
+		self.mndata.test_images = numpy.array(self.mndata.test_images, dtype="float64") / 255
 
 	def init_test(self):
 		self.tested = 0
@@ -49,11 +54,10 @@ class Application():
 	def test_all(self):
 		self.load_last_classifier(self.classifier_name)
 		test_number = len(self.mndata.test_images)
-		start = time.time()
+		timer_start()
 		for t in range(test_number):
 			self.test(self.mndata.test_labels[t], self.predict(self.mndata.test_images[t]))
-			if t % (test_number // 100) == 0:
-				print(str(t/test_number*100) + '% : ' + time_remaining(start, t, test_number) + ' remaining')
+			print_remaining_time(t,test_number)
 		print("results saved in ", self.cfg['folder']['output'] + 'result.txt')
 
 	def load_last_classifier(self, classifier_name):
@@ -106,8 +110,7 @@ class Application():
 
 	def train(self, save_classifier=False):
 		start = time.time()
-		self.mndata.train_images = numpy.array(self.mndata.train_images, dtype="float64") / 255
-		self.get_classifier().train(self.mndata.train_images, self.mndata.train_labels,start)
+		self.get_classifier().train(self.mndata.train_images, self.mndata.train_labels)
 		log("trained in " + str(time.time() - start) + "s")
 		filepath = self.cfg['folder']['classifier'] + self.classifier_name + '_' + dt.datetime.now().strftime("%Y-%m-%d_%H:%M:%S") + '.npy'
 		numpy.save(filepath, self.get_classifier().get_save())

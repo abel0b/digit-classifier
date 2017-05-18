@@ -10,9 +10,9 @@ class MultilayerPerceptronClassifier(Classifier):
     def __init__(self):
         self.network = Network(784,20,10)
 
-    def train(self, images, labels, start=0):
+    def train(self, images, labels):
         expected_outputs = [[float(labels[k]==i) for i in range(10)] for k in range(len(images))]
-        self.network.backpropagate(images, expected_outputs, start, self.cfg['train'])
+        self.network.backpropagate(images, expected_outputs, self.cfg['train'])
         if self.cfg['plot_error']:
             self.plot_error()
 
@@ -54,11 +54,12 @@ class Network:
             next_input = self.layers[k].output(next_input)
         return next_input
 
-    def backpropagate(self, inputs, expected_outputs, it=100000, eta=1, subsample_size=1, plot_error=True):
+    def backpropagate(self, inputs, expected_outputs, it=100000, eta=1, subsample_size=100, plot_error=True):
         examples = []
         alpha = 0.2
         ti = 0
-        self.cost = numpy.zeros(it//subsample_size, dtype="float64")
+        print(it,it//subsample_size)
+        self.cost = numpy.zeros(it//subsample_size)
         sample_no = 0
         '''lastk = [numpy.zeros(self.Nhidden, dtype="float64") for k in range(self.Nout)]
         lastj = [numpy.zeros(self.Nin, dtype="float64") for j in range(self.Nhidden)]'''

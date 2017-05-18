@@ -44,9 +44,9 @@ class Window(tkinter.Frame):
         for i in range(28):
             for j in range(28):
                 if type(img) == list:
-                    pi.put("#%02x%02x%02x" % (255-img[i*28+j],255-img[i*28+j],255-img[i*28+j]),(j,i))
+                    pi.put("#%02x%02x%02x" % (int(255*(1-img[i*28+j])),int(255*(1-img[i*28+j])),int(255*(1-img[i*28+j]))),(j,i))
                 else:
-                    pi.put("#%02x%02x%02x" % (img[i,j],img[i,j],img[i,j]),(i,j))
+                    pi.put("#%02x%02x%02x" % (255*img[i,j],255*img[i,j],255*img[i,j]),(i,j))
         pi = pi.zoom(8,8)
         self.pi = pi
         self.center_canvas.create_image(0, 0, image = pi, anchor = tkinter.NW)
