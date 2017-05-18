@@ -1,4 +1,3 @@
-from sys import argv
 import argparse
 
 from application import Application
@@ -6,31 +5,32 @@ from application import Application
 from perceptron import PerceptronClassifier
 from multilayer import MultilayerPerceptronClassifier
 
-GRAPHICAL = (len(argv) == 1)
-
+parser = argparse.ArgumentParser()
 app = Application()
 
 app.add_classifier("Perceptron", PerceptronClassifier())
 app.add_classifier("MultilayerPerceptron", MultilayerPerceptronClassifier())
 
+parser.add_argument('action', choices=['train', 'test'])
+parser.add_argument('classifier', choices=app.get_classifier_list())
 
-if GRAPHICAL:
-    import tkinter, gui
-    root = tkinter.Tk()
-    win = gui.Window(root, app)
-    app.set_window(win)
-    win.master.title("Reconnaissance de caractères")
+parser.add_argument('--data-folder', default='./data/')
+parser.add_argument('--results-file', default='../output/results.txt')
+parser.add_argument('--classifier-folder', default='../output/classifier/')
 
-    root.protocol("WM_DELETE_WINDOW", win.on_exit)
+parser.add_argument('--eta', default=0.1)
+parser.add_argument('--iteration', default=100000)
 
-    win.mainloop()
-else:
-    parser = argparse.ArgumentParser()
-    parser.add_argument('classifier', help="Perceptron or MultilayerPerceptron")
-    parser.add_argument('action', help="train or test")
-    args = parser.parse_args()
-    app.classifier_name = args.classifier
-    if args.action == 'train':
-        app.train(save_classifier=True)
-    elif args.action == 'test':
-        app.test_all()
+args = parser.parse_args()
+
+app.load_data(args.data_folder)
+app.set_classifier(args.classifier)
+
+app.set_options(args.eta, args.iterations)
+
+print(args)
+
+if args.action == 'train':
+    app.train(args.classifier_folder)
+elif args.action =='test':
+    app.test(args.results_file, args.classifier_folder)

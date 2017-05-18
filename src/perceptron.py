@@ -8,8 +8,8 @@ class PerceptronClassifier(Classifier):
         sgn = lambda x: 1 if x >= 0 else 0
         self.perceptrons = [Perceptron(28*28, activation_function = sgn) for i in range(10)]
 
-    def train(self, images, labels, start=0, plot_error=False):
-        it = self.cfg['train']
+    def train(self, images, labels, ):
+        it = self.it
         for i in range(10):
             self.perceptrons[i].train(images,labels,i,self.cfg['train'],self.cfg['plot_error'])
             if i < 9:
