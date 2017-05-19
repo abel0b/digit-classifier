@@ -33,6 +33,9 @@ def print_remaining_time(i, imax):
         msg = str(ti) + '% : ' + sectostr((imax-i)*(time()-start)/i) + ' restantes'
         print(msg)
 
+def sgn(x):
+    return 1 if x >= 0 else 0
+
 def sigmoid(x):
     return 1/(1+exp(-x))
 

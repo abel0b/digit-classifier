@@ -44,6 +44,8 @@ class Application:
 	def init_test(self):
 		self.tested = 0
 		self.success = 0
+		self.wrong_class = 0
+		self.ambigu = 0
 		self.confusion_matrix = numpy.zeros((10,11), dtype=int)
 
 	def test(self, classifier_name, classifier_folder, results_file):
@@ -62,14 +64,20 @@ class Application:
 		self.tested += 1
 		if output == expected:
 			self.success += 1
-		if output != '_':
+		if output != -1:
 			self.confusion_matrix[int(expected),int(output)] += 1
+			if output != expected:
+				self.wrong_class += 1
+		else:
+			self.ambigu += 1
 		numpy.savetxt(results_file, self.confusion_matrix, fmt="%d")
 		result = open(results_file, 'a')
 		result.write("\nattendue: " + str(expected))
 		result.write("\nsortie: " + str(output))
 		result.write("\ntest: " + str(self.tested))
-		result.write("\nsucces: " + str(self.success))
+		result.write("\nsucces: " + str(self.success) + ' bien classés : ' + str(round(self.success/self.tested*100,3)))
+		result.write("\nerreur: " + str(self.wrong_class) + ' mal classés : ' + str(round(self.wrong_class/self.tested*100,3)))
+		result.write("\nambigu: " + str(self.ambigu) + ' ambigu : ' + str(round(self.ambigu/self.tested*100,3)))
 		result.write("\ntaux de succes: " + str(round(self.success/self.tested*100,3)))
 		result.close()
 

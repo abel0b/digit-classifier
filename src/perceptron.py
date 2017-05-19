@@ -2,23 +2,40 @@ from classifier import Classifier
 import random, numpy, time
 import matplotlib.pyplot as plt
 
-from utils import sigmoid, timer_start, print_remaining_time
+from utils import sgn, sigmoid, timer_start, print_remaining_time
 
 class PerceptronClassifier(Classifier):
+    activation = {
+        'sgn': sgn,
+        'sigmoid' : sigmoid
+    }
+
     def init(self):
         sgn = lambda x: 1 if x >= 0 else 0
-        self.perceptrons = [Perceptron(28*28, activation_function = sgn) for i in range(10)]
+        self.perceptrons = [Perceptron(28*28, activation_function = self.activation[self.args.activation]) for i in range(10)]
 
     def train(self, images, labels):
         timer_start()
         for i in range(10):
-            self.perceptrons[i].train(images,labels,i, it=self.args.it,eta=self.args.eta )
+            self.perceptrons[i].train(images,labels,i, it=self.args.it,eta=self.args.eta)
             print_remaining_time(i,10)
         self.plot_error(100)
 
     def predict(self,image):
-        R = numpy.array([self.perceptrons[i].output(image) for i in range(10)])
-        return numpy.argmax(R)
+        output = numpy.array([self.perceptrons[i].output(image) for i in range(10)])
+        if self.args.activation == 'sgn':
+            return self.predict_sgn(output)
+        else:
+            return self.predict_sigmoid(output)
+
+    def predict_sigmoid(self, output):
+        return numpy.argmax(output)
+
+    def predict_sgn(self, output):
+        if numpy.nonzero(output)[0].size == 1:
+            return numpy.argmax(output)
+        else:
+            return -1
 
     def get_save(self):
         return [(self.perceptrons[i].weights, self.perceptrons[i].bias) for i in range(10)]
@@ -39,17 +56,14 @@ class PerceptronClassifier(Classifier):
         plt.legend(loc='upper right')
         plt.savefig('../output/error.png')
 
-    def close(self):
-        plt.close()
-
-
 class Perceptron:
-    def __init__(self, d, bias=0, activation_function = sigmoid):
+    def __init__(self, d, bias=0, activation_function = sgn):
         self.d = d
         self.activation_function = activation_function
         self.bias = bias
         self.weights = numpy.array([random.random() for i in range(d)])
         self.error = []
+        print(activation_function)
 
     def output(self,x):
         self.weighted_input = self.bias + numpy.vdot(x,self.weights)
