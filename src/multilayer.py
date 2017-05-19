@@ -7,14 +7,13 @@ import matplotlib.pyplot as plt
 
 class MultilayerPerceptronClassifier(Classifier):
 
-    def __init__(self):
+    def init(self):
         self.network = Network(784,20,10)
 
     def train(self, images, labels):
         expected_outputs = [[float(labels[k]==i) for i in range(10)] for k in range(len(images))]
-        self.network.backpropagate(images, expected_outputs, self.cfg['train'])
-        if self.cfg['plot_error']:
-            self.plot_error()
+        self.network.backpropagate(images, expected_outputs, self.args.it)
+        self.plot_error()
 
     def plot_error(self):
         cost = self.network.cost

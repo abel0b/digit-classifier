@@ -8,5 +8,3 @@ class Classifier:
         pass
     def predict(self,image):
         pass
-    def close(self):
-        pass
