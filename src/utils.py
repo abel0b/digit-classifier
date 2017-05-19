@@ -2,6 +2,7 @@ from math import exp
 from time import time, sleep
 import numpy
 import sys
+from sys import stdout
 
 global start
 
@@ -30,8 +31,12 @@ def print_remaining_time(i, imax):
         n = 1
     ti = i // (imax // n)
     if i > 0 and i % (imax//n) == 0:
-        msg = str(ti) + '% : ' + sectostr((imax-i)*(time()-start)/i) + ' restantes'
-        print(msg)
+        msg = str(ti) + '% : ' + sectostr((imax-i)*(time()-start)/i) + ' restantes' + ' '*3
+        stdout.write("\r"+msg)
+        stdout.flush()
+        #print(msg)
+    if i == imax:
+        print('')
 
 def sgn(x):
     return 1 if x >= 0 else 0
