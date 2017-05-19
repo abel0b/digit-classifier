@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from utils import sigmoid, timer_start, print_remaining_time
 
 class PerceptronClassifier(Classifier):
-    def init(self, args):
+    def init(self):
         sgn = lambda x: 1 if x >= 0 else 0
         self.perceptrons = [Perceptron(28*28, activation_function = sgn) for i in range(10)]
 
