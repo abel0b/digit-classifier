@@ -24,7 +24,10 @@ def timer_start():
     start = time()
 
 def print_remaining_time(i, imax):
-    n = 100
+    if imax > 100:
+        n = 100
+    else:
+        n = 1
     ti = i // (imax // n)
     if i > 0 and i % (imax//n) == 0:
         msg = str(ti) + '% : ' + sectostr((imax-i)*(time()-start)/i) + ' restantes'

@@ -1,21 +1,24 @@
 from classifier import Classifier
 import random, numpy, time
 import matplotlib.pyplot as plt
-from utils import sigmoid
+
+from utils import sigmoid, timer_start, print_remaining_time
 
 class PerceptronClassifier(Classifier):
-    def __init__(self):
+    def init(self):
         sgn = lambda x: 1 if x >= 0 else 0
         self.perceptrons = [Perceptron(28*28, activation_function = sgn) for i in range(10)]
 
-    def train(self, images, labels, ):
-        it = self.it
+    def train(self, images, labels):
+        timer_start()
         for i in range(10):
-            self.perceptrons[i].train(images,labels,i,self.cfg['train'],self.cfg['plot_error'])
-            if i < 9:
-                print(str(i+1) + '/10 : ' + str(int((10-i-1)*(time.time()-start)/(i+1))) + 's remaining')
-        if self.cfg['plot_error']:
-            self.plot_error(100)
+            self.perceptrons[i].train(images,labels,i, it=self.args.it,eta=self.args.eta )
+            print_remaining_time(i,10)
+        self.plot_error(100)
+
+    def predict(self,image):
+        R = numpy.array([self.perceptrons[i].output(image) for i in range(10)])
+        return numpy.argmax(R)
 
     def get_save(self):
         return [(self.perceptrons[i].weights, self.perceptrons[i].bias) for i in range(10)]
@@ -26,10 +29,6 @@ class PerceptronClassifier(Classifier):
             self.perceptrons[i].weights = weights
             self.perceptrons[i].bias = bias
             i += 1
-
-    def predict(self,image):
-        R = numpy.array([self.perceptrons[i].output(image) for i in range(10)])
-        return numpy.argmax(R)
 
     def plot_error(self, it):
         for i in range(10):

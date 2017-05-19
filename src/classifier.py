@@ -1,5 +1,8 @@
-class Classifier(object):
-    def __init__(self):
+class Classifier:
+    def __init__(self, args):
+        self.args = args
+        self.init()
+    def init(self):
         pass
     def train(self, images, labels):
         pass
@@ -7,5 +10,3 @@ class Classifier(object):
         pass
     def close(self):
         pass
-    def setConfig(self, cfg):
-        self.cfg = cfg
