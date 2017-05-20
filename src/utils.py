@@ -4,9 +4,8 @@ import numpy
 import sys
 from sys import stdout
 
-global start
-
 start = time()
+
 
 def sectostr(sec):
     sec = int(sec)
@@ -18,11 +17,14 @@ def sectostr(sec):
     time += str(seconds) + 's'
     return time
 
+
 def log(*argv):
     print(*argv)
 
+
 def timer_start():
     start = time()
+
 
 def print_remaining_time(i, imax):
     if imax > 100:
@@ -30,19 +32,23 @@ def print_remaining_time(i, imax):
     else:
         n = 1
     ti = i // (imax // n)
-    if i > 0 and i % (imax//n) == 0:
-        msg = str(ti) + '% : ' + sectostr((imax-i)*(time()-start)/i) + ' restantes' + ' '*3
-        stdout.write("\r"+msg)
+    if i > 0 and i % (imax // n) == 0:
+        msg = str(ti) + '% : ' + sectostr((imax - i) * (time() - start) / i) + ' restantes' + ' ' * 3
+        stdout.write("\r" + msg)
         stdout.flush()
-        #print(msg)
-    if i == imax:
+        # print(msg)
+    if i == imax - 1:
+        stdout.write("\r" + " " * 20)
         print('')
+
 
 def sgn(x):
     return 1 if x >= 0 else 0
 
+
 def sigmoid(x):
-    return 1/(1+exp(-x))
+    return 1 / (1 + exp(-x))
+
 
 def sigmoid_prime(x):
-    return sigmoid(x)*(1-sigmoid(x))
+    return sigmoid(x) * (1 - sigmoid(x))

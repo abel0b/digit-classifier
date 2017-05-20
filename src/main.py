@@ -21,14 +21,13 @@ parser.add_argument('--classifier-folder', default='../output/classifier/')
 
 # options de configuration
 parser.add_argument('--eta', default=0.1)
-parser.add_argument('--it', default=100000)
+parser.add_argument('--it', default=100000, type=int)
 parser.add_argument('--activation', default='sgn', choices=['sgn', 'sigmoid'])
-
 
 args = parser.parse_args()
 app.init(args)
 
 if args.action == 'train':
     app.train(args.classifier, args.classifier_folder)
-elif args.action =='test':
+elif args.action == 'test':
     app.test(args.classifier, args.classifier_folder, args.results_file)
