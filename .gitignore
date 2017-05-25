@@ -1,4 +1,3 @@
 *.pyc
-output/*
-.ipynb_checkpoints
-.ipynb_checkpoints/*
+output*
+.ipynb_checkpoints*

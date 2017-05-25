@@ -20,7 +20,7 @@ parser.add_argument('--results-file', default='../output/results.txt')
 parser.add_argument('--classifier-folder', default='../output/classifier/')
 
 # options de configuration
-parser.add_argument('--eta', default=0.1)
+parser.add_argument('--eta', default=0.01)
 parser.add_argument('--it', default=1000, type=int)
 parser.add_argument('--activation', default='sgn', choices=['sgn', 'sigmoid'])
 
