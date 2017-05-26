@@ -16,14 +16,20 @@ class Application:
     classifiers = {}
     classifier = None
 
-    def init(self, args):
-        self.load_data(args.data_folder)
+    def run(self, args):
         self.classifier = self.classifiers[args.classifier](args)
+        self.load_data(args.data_folder, args.action)
+        if args.action == 'train':
+            self.train(args.classifier, args.classifier_folder)
+        elif args.action == 'test':
+            self.test(args.classifier, args.classifier_folder, args.results_file, args.confusion_matrix_file)
 
-    def load_data(self, data_folder):
+    def load_data(self, data_folder, action):
         self.mndata = MNIST(data_folder)
-        self.mndata.load_training()
-        self.mndata.load_testing()
+        if action == 'train':
+            self.mndata.load_training()
+        elif action == 'test':
+            self.mndata.load_testing()
         self.normalize_data()
         log("données chargées")
 
@@ -54,20 +60,21 @@ class Application:
         self.ambigu = 0
         self.confusion_matrix = numpy.zeros((10, 11), dtype=int)
 
-    def test(self, classifier_name, classifier_folder, results_file):
+    def test(self, classifier_name, classifier_folder, results_file, confusion_matrix_file):
         self.init_test()
         self.load_last_classifier(classifier_name, classifier_folder)
         test_number = len(self.mndata.test_images)
         timer_start()
         for t in range(test_number):
             self.update_statistics(self.mndata.test_labels[t], self.classifier.predict(
-                self.mndata.test_images[t]), results_file)
+                self.mndata.test_images[t]), results_file, confusion_matrix_file)
             print_remaining_time(t, test_number)
+        print(numpy.loadtxt(confusion_matrix_file).astype(int))
         with open(results_file, 'r') as results_file:
             data = results_file.read()
         print(data)
 
-    def update_statistics(self, expected, output, results_file):
+    def update_statistics(self, expected, output, results_file, confusion_matrix_file):
         self.tested += 1
         if output == expected:
             self.success += 1
@@ -78,11 +85,9 @@ class Application:
         else:
             self.confusion_matrix[expected, 10] += 1
             self.ambigu += 1
-        numpy.savetxt(results_file, self.confusion_matrix, fmt="%d")
-        with open(results_file, 'a') as result:
-            #result.write("\nattendue: " + str(expected))
-            #result.write("\nsortie: " + str(output))
-            result.write("\n  test: " + str(self.tested))
+        numpy.savetxt(confusion_matrix_file, self.confusion_matrix)
+        with open(results_file, 'w') as result:
+            result.write("  test: " + str(self.tested))
             result.write("\nsucces: " + str(round(self.success / self.tested * 100, 3)) + "%")
             result.write("\nerreur: " + str(round(self.wrong_class / self.tested * 100, 3)) + "%")
             if self.ambigu != 0:

@@ -45,6 +45,17 @@ def print_remaining_time(i, imax):
 def sgn(x):
     return 1 if x >= 0 else 0
 
+def tanh(x):
+    return numpy.tanh(x)
+
+def tanh_prime(x):
+    return 1. + numpy.tanh(x)**2
+
+def ntanh(x):
+    return 0.5*(numpy.tanh(x)+1)
+
+def ntanh_prime(x):
+    return 0.5*(1.+numpy.tanh(x)**2)
 
 def sigmoid(x):
     return expit(x)
