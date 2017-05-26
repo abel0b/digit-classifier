@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import sys
 
 
+
 class MultilayerPerceptronClassifier(Classifier):
 
     def init(self):
@@ -59,6 +60,15 @@ class Network:
     def train(self, inputs, expected_outputs, it=1000, eta=0.1, verbose=False):
         self.cost = []
         timer_start()
+        print(inputs[0], expected_outputs[0])
+        '''for i in range(28):
+            l=''
+            for j in range(25):
+                if inputs[0][i*28+j] >= .8:
+                    l += '0'
+                else:
+                    l += ' '
+            print(l)'''
         for i in range(it):
             n = random.randint(0,len(inputs)-1)
             x, t = inputs[n], expected_outputs[n]
@@ -125,6 +135,7 @@ class Network:
 
         self.cost.append(.5*sum([(z[k]-t[k])**2 for k in range(self.N_out)]))
         return nabla_hw, nabla_hb, nabla_sw, nabla_sb
+
 
 class Layer:
 
