@@ -1,10 +1,11 @@
 from classifier import Classifier
 from perceptron import Perceptron
-from random import randint
+import random
 from utils import sigmoid, sigmoid_prime, print_remaining_time, timer_start
 import numpy
 import time
 import matplotlib.pyplot as plt
+import sys
 
 
 class MultilayerPerceptronClassifier(Classifier):
@@ -13,116 +14,132 @@ class MultilayerPerceptronClassifier(Classifier):
         self.network = Network(784, 20, 10)
 
     def train(self, images, labels):
-        expected_outputs = [[float(labels[k] == i) for i in range(10)] for k in range(len(images))]
-        self.network.backpropagate(images, expected_outputs, self.args.it)
+        expected_outputs = [numpy.fromiter((labels[k] == i for i in range(10)), numpy.float64) for k in range(len(images))]
+        print(expected_outputs[0])
+        self.network.mini_batch_train(images, expected_outputs, self.args.it, numpy.float64(self.args.eta), verbose=True)
         self.plot_error()
 
     def plot_error(self):
         cost = self.network.cost
         numpy.save('../output/error.npy', numpy.array(cost))
-        '''l = numpy.array(list(range(len(cost))))
-        plt.plot([100*k for k in range(len(l))], cost, label='J')'''
+        plt.plot(range(len(cost)), cost)
         plt.ylabel('erreur quadratique')
         plt.xlabel("itération")
-        plt.legend(loc='upper right')
         plt.savefig('../output/error.png')
 
     def predict(self, image):
-        return numpy.argmax(self.network.output(image))
+        y = self.network.feed_forward(image)
+        return numpy.argmax(y)
 
     def get_save(self):
-        return [[(self.network.layers[k].perceptrons[i].weights, self.network.layers[k].perceptrons[i].bias) for i in range(self.network.sizes[k + 1])] for k in range(self.network.number_layers)]
+        return [(self.network.layers[k].W, self.network.layers[k].b) for k in range(self.network.number_layers)]
 
     def load_save(self, save):
-        for k in range(self.network.number_layers):
-            self.network.layers[k].set_weights(save[k])
+        k = 0
+        for W, b in save:
+            self.network.layers[k].set_weights(W, b)
+            k += 1
 
 
 class Network:
 
-    def __init__(self, Nin, Nhidden, Nout):
-        self.sizes = [Nin, Nhidden, Nout]
-        self.number_layers = len(self.sizes) - 1
-        self.Nin = Nin
-        self.Nhidden = Nhidden
-        self.Nout = Nout
-        self.input_size = self.sizes[0]
-        self.layers = [Layer(self.sizes[layer], self.sizes[layer + 1])
-                       for layer in range(self.number_layers)]
+    def __init__(self, N_in, N_hidden, N_out):
+        self.N_in = N_in
+        self.N_hidden = N_hidden
+        self.N_out = N_out
+        self.layers = [Layer(N_in, N_hidden), Layer(N_hidden, N_out)]
+        self.number_layers = len(self.layers)
 
-    def output(self, x):
-        next_input = x
-        for k in range(self.number_layers):
-            next_input = self.layers[k].output(next_input)
-        return next_input
+    def feed_forward(self, x):
+        y = numpy.copy(x)
+        for layer in self.layers:
+            y = layer.output(y)
+        return y
 
-    def backpropagate(self, inputs, expected_outputs, it=100000, eta=0.01, subsample_size=100, plot_error=True):
-        alpha = 0.2
-        ti = 0
-        self.cost = numpy.zeros(it)
-        sample_no = 0
-        '''lastk = [numpy.zeros(self.Nhidden, dtype="float64") for k in range(self.Nout)]
-        lastj = [numpy.zeros(self.Nin, dtype="float64") for j in range(self.Nhidden)]'''
+    def train(self, inputs, expected_outputs, it=1000, eta=0.1, verbose=False):
+        self.cost = []
         timer_start()
-        print(inputs[0], expected_outputs[0])
-        '''for i in range(28):
-            l=''
-            for j in range(25):
-                if inputs[0][i*28+j] >= .8:
-                    l += '0'
-                else:
-                    l += ' '
-            print(l)'''
         for i in range(it):
-            n = randint(0, len(inputs) - 1)
-            x = inputs[n]
-            t = expected_outputs[n]
-            z = self.output(x)
+            n = random.randint(0,len(inputs)-1)
+            x, t = inputs[n], expected_outputs[n]
+            z = self.feed_forward(x)
 
-            self.cost[i] = sum([(t[k] - z[k])**2 for k in range(self.Nout)])
+            nabla_hw, nabla_hb, nabla_sw, nabla_sb = self.backpropagate(x, z, t)
 
-            # Mise à jour des poids de la couche de sortie
-            for k in range(self.Nout):
-                deltak = (t[k] - z[k]) * sigmoid_prime(self.layers[1].perceptrons[k].weighted_input)
-                self.layers[1].perceptrons[k].update_weights(eta * deltak, self.layers[0].out)
-                '''self.layers[1].perceptrons[k].update_weights((1-alpha)*eta*deltak,self.layers[0].out)
-                if i > 1:
-                    self.layers[1].perceptrons[k].update_weights(alpha*eta,lastk[k])
-                lastk[k] = deltak * self.layers[0].out'''
+            self.layers[1].W -= eta * nabla_sw
+            self.layers[1].b -= eta * nabla_sb
 
-            # Mise à jour des poids de la couche cachée
-            for j in range(self.Nhidden):
-                deltaj = 0.
-                for k in range(self.Nout):
-                    deltak = (t[k] - z[k]) * \
-                        sigmoid_prime(self.layers[1].perceptrons[k].weighted_input)
-                    deltaj += deltak * self.layers[1].perceptrons[k].weights[j]
-                deltaj *= sigmoid_prime(self.layers[0].perceptrons[j].weighted_input)
-                self.layers[0].perceptrons[j].update_weights(eta * deltaj, x)
-                '''self.layers[0].perceptrons[j].update_weights((1-alpha)*eta*deltaj, x)
-                if i > 1:
-                    self.layers[0].perceptrons[j].update_weights(alpha*eta,lastj[j])
-                lastj[j] = 0'''
+            self.layers[0].W -= eta * nabla_hw
+            self.layers[0].b -= eta * nabla_hb
 
-            print_remaining_time(i, it)
+            if verbose and i % (it//100) == 0:
+                print_remaining_time(i, it)
+                print('coût', self.cost[len(self.cost)-1])
 
+    def mini_batch_train(self, inputs, expected_outputs, it=1000, eta=0.1, verbose=False):
+        self.cost = []
+        timer_start()
+        mini_batch_size = 50
+        epochs = it // mini_batch_size
+        nabla_hw, nabla_hb, nabla_sw, nabla_sb = numpy.zeros(self.layers[0].W.shape), numpy.zeros(self.layers[0].b.shape), numpy.zeros(self.layers[1].W.shape), numpy.zeros(self.layers[1].b.shape)
+        for i in range(epochs):
+            for k in range(mini_batch_size):
+                n = random.randint(0,len(inputs)-1)
+                x, t = inputs[n], expected_outputs[n]
+                z = self.feed_forward(x)
+
+                nhw, nhb, nsw, nsb = self.backpropagate(x, z, t)
+
+                nabla_sw += nsw
+                nabla_sb += nsb
+                nabla_hw += nhw
+                nabla_hb += nhb
+            print(t, z)
+            for i in range(28):
+                msg = ''
+                for j in range(28):
+                    if inputs[n][i*28+j] > 0.7:
+                        msg += '▮'
+                    else:
+                        msg += ' '
+                print(msg)
+            self.layers[1].W -= eta / mini_batch_size * nabla_sw
+            self.layers[1].b -= eta / mini_batch_size * nabla_sb
+
+            self.layers[0].W -= eta / mini_batch_size * nabla_hw
+            self.layers[0].b -= eta / mini_batch_size * nabla_hb
+            nabla_hw, nabla_hb, nabla_sw, nabla_sb = numpy.zeros(self.layers[0].W.shape), numpy.zeros(self.layers[0].b.shape), numpy.zeros(self.layers[1].W.shape), numpy.zeros(self.layers[1].b.shape)
+
+            if verbose:
+                print('cycle', i, 'coût', self.cost[len(self.cost)-1])
+
+
+    def backpropagate(self, x, z, t):
+        delta_s = numpy.multiply(z-t, sigmoid_prime(self.layers[1].w_inp))
+        nabla_sw = numpy.outer(delta_s, self.layers[0].out)
+        nabla_sb = delta_s
+
+        delta_h = numpy.multiply(numpy.matmul(delta_s, self.layers[1].W), sigmoid_prime(self.layers[0].w_inp))
+        nabla_hw = numpy.outer(delta_h, x)
+        nabla_hb = delta_h
+
+        self.cost.append(.5*sum([(z[k]-t[k])**2 for k in range(self.N_out)]))
+        return nabla_hw, nabla_hb, nabla_sw, nabla_sb
 
 class Layer:
-    size = 0
 
-    def __init__(self, insize, outsize):
+    def __init__(self, insize, outsize, activation=sigmoid):
         self.insize = insize
         self.outsize = outsize
-        self.perceptrons = [Perceptron(insize, activation_function=sigmoid) for k in range(outsize)]
+        self.W = numpy.random.rand(outsize, insize)
+        self.b = numpy.random.rand(outsize)
+        self.activation = activation
 
-    def output(self, inp):
-        self.out = numpy.array([self.perceptrons[k].output(inp)
-                                for k in range(self.outsize)], dtype="float64")
+    def output(self, x):
+        self.w_inp = numpy.matmul(self.W, x) + self.b
+        self.out = self.activation(self.w_inp)
         return self.out
 
-    def set_weights(self, weights):
-        i = 0
-        for omega, bias in weights:
-            self.perceptrons[i].weights = omega
-            self.perceptrons[i].bias = bias
-            i += 1
+    def set_weights(self, W, b):
+        self.W = W
+        self.b = b

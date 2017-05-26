@@ -1,8 +1,8 @@
 from math import exp
 from time import time, sleep
 import numpy
-import sys
 from sys import stdout
+from scipy.special import expit
 
 start = time()
 
@@ -47,8 +47,7 @@ def sgn(x):
 
 
 def sigmoid(x):
-    return 1 / (1 + exp(-x))
-
+    return expit(x)
 
 def sigmoid_prime(x):
     return sigmoid(x) * (1 - sigmoid(x))
