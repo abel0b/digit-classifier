@@ -2,7 +2,6 @@ from math import exp
 from time import time, sleep
 import numpy
 from sys import stdout
-from scipy.special import expit
 
 start = time()
 
@@ -45,6 +44,12 @@ def print_remaining_time(i, imax):
 def sgn(x):
     return 1 if x >= 0 else 0
 
+def sigmoid(x):
+    return .5 + .5*numpy.tanh(x/2.)
+
+def sigmoid_prime(x):
+    return sigmoid(x) * (1 - sigmoid(x))
+
 def tanh(x):
     return numpy.tanh(x)
 
@@ -56,9 +61,3 @@ def ntanh(x):
 
 def ntanh_prime(x):
     return 0.5*(1.+numpy.tanh(x)**2)
-
-def sigmoid(x):
-    return expit(x)
-
-def sigmoid_prime(x):
-    return sigmoid(x) * (1 - sigmoid(x))

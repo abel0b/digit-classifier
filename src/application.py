@@ -58,6 +58,8 @@ class Application:
         self.success = 0
         self.wrong_class = 0
         self.ambigu = 0
+        self.digit_success = numpy.array([0 for i in range(10)])
+        self.digits = numpy.array([0 for i in range(10)])
         self.confusion_matrix = numpy.zeros((10, 11), dtype=int)
 
     def test(self, classifier_name, classifier_folder, results_file, confusion_matrix_file):
@@ -73,11 +75,19 @@ class Application:
         with open(results_file, 'r') as results_file:
             data = results_file.read()
         print(data)
+        plt.bar(range(10), 100*numpy.divide(self.digit_success,self.digits))
+        plt.xlabel("chiffre")
+        plt.ylabel("taux de success")
+        plt.xticks(range(10))
+        plt.yticks(range(0,101,10))
+        plt.show()
 
     def update_statistics(self, expected, output, results_file, confusion_matrix_file):
         self.tested += 1
+        self.digits[expected] += 1
         if output == expected:
             self.success += 1
+            self.digit_success[expected] += 1
         if output != -1:
             self.confusion_matrix[int(expected), int(output)] += 1
             if output != expected:
