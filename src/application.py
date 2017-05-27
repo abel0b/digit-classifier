@@ -77,10 +77,10 @@ class Application:
         print(data)
         plt.bar(range(10), 100*numpy.divide(self.digit_success,self.digits))
         plt.xlabel("chiffre")
-        plt.ylabel("taux de success")
+        plt.ylabel("taux de succes")
         plt.xticks(range(10))
         plt.yticks(range(0,101,10))
-        plt.show()
+        plt.savefig(results_file.name[:-3] + 'png')
 
     def update_statistics(self, expected, output, results_file, confusion_matrix_file):
         self.tested += 1
@@ -102,6 +102,9 @@ class Application:
             result.write("\nerreur: " + str(round(self.wrong_class / self.tested * 100, 3)) + "%")
             if self.ambigu != 0:
                 result.write("\nambigu: " + str(round(self.ambigu / self.tested * 100, 3)) + "%")
+            for i in range(10):
+                result.write('\n'+str(self.digit_success[i]))
+                result.write('\n'+str(self.digits[i]))
 
     def add_classifier(self, name, classifier):
         self.classifiers[name] = classifier
@@ -112,7 +115,7 @@ class Application:
     def train(self, classifier_name, classifier_folder):
         start = time.time()
         self.classifier.train(self.mndata.train_images, self.mndata.train_labels)
-        log("trained in " + str(time.time() - start) + "s")
+        log("entrainé en " + str(time.time() - start) + "s")
         filepath = classifier_folder + classifier_name + '_' + \
             dt.datetime.now().strftime("%Y-%m-%d_%H:%M:%S") + '.npy'
         numpy.save(filepath, self.classifier.get_save())

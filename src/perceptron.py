@@ -23,7 +23,7 @@ class PerceptronClassifier(Classifier):
         for i in range(10):
             self.perceptrons[i].train(images, labels, i, it=self.args.it, eta=self.args.eta)
             print_remaining_time(i, 10)
-        self.plot_error(100)
+        self.plot_error(self.args.it)
 
     def predict(self, image):
         output = numpy.array([self.perceptrons[i].output(image) for i in range(10)])
@@ -58,7 +58,8 @@ class PerceptronClassifier(Classifier):
         plt.ylabel('erreur quadratique')
         plt.xlabel("itération")
         plt.legend(loc='upper right')
-        plt.savefig('../output/error.png')
+        plt.savefig(self.args.error_img)
+        numpy.save(self.args.error_file, numpy.array([self.perceptrons[i].error for i in range(10)]))
 
 
 class Perceptron:
