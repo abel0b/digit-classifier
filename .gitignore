@@ -1,3 +1,6 @@
 *.pyc
-output*
 .ipynb_checkpoints*
+scripts/script.sh
+scripts/out*
+output*
+models*

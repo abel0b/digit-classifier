@@ -20,9 +20,9 @@ class Application:
         self.classifier = self.classifiers[args.classifier](args)
         self.load_data(args.data_folder, args.action)
         if args.action == 'train':
-            self.train(args.classifier, args.classifier_folder)
+            self.train(args.classifier, args.models_folder)
         elif args.action == 'test':
-            self.test(args.classifier, args.classifier_folder, args.results_file, args.confusion_matrix_file)
+            self.test(args.classifier, args.outputs_folder, args.models_folder)
 
     def load_data(self, data_folder, action):
         self.mndata = MNIST(data_folder)
@@ -62,17 +62,18 @@ class Application:
         self.digits = numpy.array([0 for i in range(10)])
         self.confusion_matrix = numpy.zeros((10, 11), dtype=int)
 
-    def test(self, classifier_name, classifier_folder, results_file, confusion_matrix_file):
+    def test(self, classifier_name, outputs_folder, models_folder):
         self.init_test()
-        self.load_last_classifier(classifier_name, classifier_folder)
+        self.load_last_classifier(classifier_name, models_folder)
         test_number = len(self.mndata.test_images)
         timer_start()
+        print(outputs_folder)
         for t in range(test_number):
             self.update_statistics(self.mndata.test_labels[t], self.classifier.predict(
-                self.mndata.test_images[t]), results_file, confusion_matrix_file)
+                self.mndata.test_images[t]), outputs_folder + 'results.txt', outputs_folder + 'confusion.txt')
             print_remaining_time(t, test_number)
-        print(numpy.loadtxt(confusion_matrix_file).astype(int))
-        with open(results_file, 'r') as results_file:
+        print(numpy.loadtxt(outputs_folder + 'confusion.txt').astype(int))
+        with open(outputs_folder + 'results.txt', 'r') as results_file:
             data = results_file.read()
         print(data)
         plt.bar(range(10), 100*numpy.divide(self.digit_success,self.digits))
@@ -80,7 +81,7 @@ class Application:
         plt.ylabel("taux de succes")
         plt.xticks(range(10))
         plt.yticks(range(0,101,10))
-        plt.savefig(results_file.name[:-3] + 'png')
+        plt.savefig(outputs_folder + 'results.png')
 
     def update_statistics(self, expected, output, results_file, confusion_matrix_file):
         self.tested += 1
@@ -112,10 +113,10 @@ class Application:
     def get_classifier_list(self):
         return list(self.classifiers.keys())
 
-    def train(self, classifier_name, classifier_folder):
+    def train(self, classifier_name, models_folder):
         start = time.time()
         self.classifier.train(self.mndata.train_images, self.mndata.train_labels)
         log("entrainé en " + str(time.time() - start) + "s")
-        filepath = classifier_folder + classifier_name + '_' + \
+        filepath = models_folder + classifier_name + '_' + \
             dt.datetime.now().strftime("%Y-%m-%d_%H:%M:%S") + '.npy'
         numpy.save(filepath, self.classifier.get_save())

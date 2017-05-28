@@ -8,8 +8,7 @@ import matplotlib.pyplot as plt
 class MultilayerPerceptronClassifier(Classifier):
 
     def init(self):
-        self.network = Network(784, 300, 200, 100, 100, 10)
-        self.network.set_activation(self.args.activation)
+        self.network = Network([784, 800, 400, 10], args.activation)
 
     def train(self, images, labels):
         if self.args.activation == 'tanh':
@@ -22,12 +21,12 @@ class MultilayerPerceptronClassifier(Classifier):
 
     def plot_error(self):
         cost = self.network.cost
-        numpy.save(self.args.error_file, numpy.array(cost))
+        numpy.save(self.args.outputs_folder + 'error.npy', numpy.array(cost))
         plt.plot(range(len(cost)), cost)
         plt.ylabel('erreur quadratique')
         plt.xlabel("cycle")
         #plt.xscale('log')
-        plt.savefig(self.args.error_img)
+        plt.savefig(self.args.outputs_folder + 'error.png')
 
     def predict(self, image):
         y = self.network.feed_forward(image)
@@ -49,24 +48,22 @@ class Network:
         'sigmoid': utils.sigmoid,
         'tanh': utils.tanh,
         'ntanh': utils.ntanh,
+        'nsig': lambda x: 1./(1+numpy.exp(-x))
     }
 
     df = {
         'sigmoid': utils.sigmoid_prime,
         'tanh' : utils.tanh_prime,
-        'ntanh' : utils.ntanh_prime
+        'ntanh' : utils.ntanh_prime,
+        'nsig' : lambda x! self.f['nsig'](x)*(1-self.f['nsig'](x))
     }
 
-    def __init__(self, *sizes):
+    def __init__(self, sizes, activation='sigmoid'):
         self.sizes = sizes
         self.depth = len(sizes)-1
-        self.layers = [Layer(sizes[k], sizes[k+1]) for k in range(self.depth)]
-
-    def set_activation(self, activation):
+        self.layers = [Layer(sizes[k], sizes[k+1], self.f[activation]) for k in range(self.depth)]
         self.sigmoid = [self.f[activation] for k in range(self.depth)]
         self.sigmoid_prime = [self.df[activation] for k in range(self.depth)]
-        for k in range(self.depth):
-            self.layers[k].set_activation(self.f[activation])
 
     def feed_forward(self, x):
         y = numpy.copy(x)
@@ -75,7 +72,7 @@ class Network:
         return y
 
     def train(self, inputs, expected_outputs, it=1000, eta=0.1, verbose=False):
-        self.cost = []
+        self.cost = numpy.zeros(it)
         utils.timer_start()
         for i in range(it):
             #if i >= 2000:
@@ -84,20 +81,19 @@ class Network:
             x, t = inputs[n], expected_outputs[n]
             z = self.feed_forward(x)
 
-            nabla_hw, nabla_hb, nabla_sw, nabla_sb = self.backpropagate(x, z, t)
+            self.costk = 0.
+            nablaw, nablab = self.backpropagate(x, z, t)
+            self.cost[i] = self.costk
 
-            self.layers[1].W -= eta * nabla_sw
-            self.layers[1].b -= eta * nabla_sb
-
-            self.layers[0].W -= eta * nabla_hw
-            self.layers[0].b -= eta * nabla_hb
+            for d in range(self.depth):
+                self.layers[d].W -= eta * nablaw[d]
+                self.layers[d].b -= eta * nablab[d]
 
             if verbose and i % (it//100) == 0:
                 utils.print_remaining_time(i, it)
-                print('coût', self.cost[len(self.cost)-1])
+                print('coût', self.costk)
 
-    def mini_batch_train(self, inputs, expected_outputs, it=1000, eta=0.1, verbose=False):
-        mini_batch_size = 50
+    def mini_batch_train(self, inputs, expected_outputs, it=1000, eta=0.1, verbose=False, mini_batch_size=50):
         epochs = it // mini_batch_size
         self.cost = numpy.zeros(epochs)
 
@@ -111,13 +107,13 @@ class Network:
                 x, t = inputs[n], expected_outputs[n]
                 z = self.feed_forward(x)
 
-                nw, nb, costk = self.backpropagate(x, z, t)
+                nw, nb = self.backpropagate(x, z, t)
 
                 for d in range(self.depth):
                     nablaw[d] += nw[d]
                     nablab[d] += nb[d]
 
-            self.cost[i] = costk / mini_batch_size
+            self.cost[i] = self.costk / mini_batch_size
 
             for d in range(self.depth):
                 self.layers[d].W -= eta / mini_batch_size * nablaw[d]
@@ -141,12 +137,14 @@ class Network:
 
         # Calcul sur la couche de sortie
         delta[-1] = numpy.multiply(z-t, self.sigmoid_prime[-1](self.layers[-1].w_inp + self.layers[-1].b))
+        delta[-1] = numpy.multiply(z-t, self.sigmoid_prime[-1](self.layers[-1].w_inp))
         nablaw[-1] = numpy.outer(delta[-1], self.layers[-2].out)
         nablab[-1] = delta[-1]
 
         # Calcul sur les couches cachées
         for d in range(-2, -self.depth-1, -1):
             delta[d] = numpy.multiply(numpy.matmul(delta[d+1], self.layers[d+1].W), self.sigmoid_prime[d](self.layers[d].w_inp + self.layers[d].b))
+            delta[d] = numpy.multiply(numpy.matmul(delta[d+1], self.layers[d+1].W), self.sigmoid_prime[d](self.layers[d].w_inp))
             if d == -self.depth:
                 a = x
             else:
@@ -156,7 +154,7 @@ class Network:
 
         self.costk += .5*sum([(z[k]-t[k])**2 for k in range(self.sizes[-1])])
 
-        return nablaw, nablab, self.costk
+        return nablaw, nablab
 
 
 class Layer:
@@ -170,9 +168,6 @@ class Layer:
         else:
             self.W = numpy.random.rand(outsize, insize)
             self.b = numpy.random.rand(outsize)
-        self.activation = activation
-
-    def set_activation(self, activation):
         self.activation = activation
 
     def output(self, x):
