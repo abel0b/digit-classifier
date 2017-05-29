@@ -1,11 +1,9 @@
 from mnist import MNIST
 import numpy
 import random
-import yaml
 import re
 import sys
 import os
-from PIL import Image, ImageDraw
 import time
 from matplotlib import pyplot as plt
 import datetime as dt
