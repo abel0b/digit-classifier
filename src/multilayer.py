@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 class MultilayerPerceptronClassifier(Classifier):
 
     def init(self):
-        self.network = Network([784, 800, 400, 10], args.activation)
+        self.network = Network([784, 400, 10], self.args.activation)
 
     def train(self, images, labels):
         if self.args.activation == 'tanh':
@@ -55,7 +55,7 @@ class Network:
         'sigmoid': utils.sigmoid_prime,
         'tanh' : utils.tanh_prime,
         'ntanh' : utils.ntanh_prime,
-        'nsig' : lambda x! self.f['nsig'](x)*(1-self.f['nsig'](x))
+        'nsig' : lambda x: self.f['nsig'](x)*(1-self.f['nsig'](x))
     }
 
     def __init__(self, sizes, activation='sigmoid'):
