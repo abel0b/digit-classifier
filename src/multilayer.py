@@ -8,11 +8,7 @@ import matplotlib.pyplot as plt
 class MultilayerPerceptronClassifier(Classifier):
 
     def init(self):
-<<<<<<< HEAD
-        self.network = Network([784, 100, 100, 10], self.args.activation)
-=======
-        self.network = Network([784, 400, 10], self.args.activation)
->>>>>>> a14c3e232c97eafd398efd7ea21a137edbca3552
+        self.network = Network([784, 100, 10], self.args.activation)
 
     def train(self, images, labels):
         if self.args.activation == 'tanh':

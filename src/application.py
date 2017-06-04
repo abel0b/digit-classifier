@@ -1,12 +1,6 @@
 from mnist import MNIST
 import numpy
 import random
-<<<<<<< HEAD
-=======
-import re
-import sys
-import os
->>>>>>> a14c3e232c97eafd398efd7ea21a137edbca3552
 import time
 from matplotlib import pyplot as plt
 import datetime as dt
