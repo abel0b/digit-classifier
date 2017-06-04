@@ -1,28 +1,52 @@
 from mnist import MNIST
 import numpy
 import random
-import yaml
-import re
-import sys
-import os
-from PIL import Image, ImageDraw
 import time
 from matplotlib import pyplot as plt
 import datetime as dt
+import argparse
+import os
+import re
+
 from utils import log, print_remaining_time, timer_start
+
+import sys
 
 
 class Application:
-    classifiers = {}
-    classifier = None
+    options = {}
+    opt = {}
 
-    def run(self, args):
-        self.classifier = self.classifiers[args.classifier](args)
-        self.load_data(args.data_folder, args.action)
-        if args.action == 'train':
-            self.train(args.classifier, args.models_folder)
-        elif args.action == 'test':
-            self.test(args.classifier, args.outputs_folder, args.models_folder)
+    def __init__(self, classifiers):
+        self.classifiers = classifiers
+
+        parser = argparse.ArgumentParser()
+        parser.add_argument('action', choices=['train', 'test'])
+
+        subparsers = parser.add_subparsers(dest = 'classifier')
+        for name, classifier in self.classifiers.items():
+            self.options[name] = subparsers.add_parser(name)
+
+        name = parser.parse_known_args()[0].classifier
+
+        options = self.options[name].add_argument_group('options')
+        self.classifier = self.classifiers[name](options)
+
+        folders = self.options[name].add_argument_group('folders')
+        folders.add_argument('--data-folder', default='../data/raw/')
+        folders.add_argument('--models-folder', default='../models/')
+        folders.add_argument('--outputs-folder', default='../outputs/')
+
+        self.args = parser.parse_args(namespace = self.classifier.args)
+
+        self.classifier.init()
+        self.load_data(self.args.data_folder, self.args.action)
+
+    def run(self):
+        if self.args.action == 'train':
+            self.train(self.args.classifier, self.args.models_folder)
+        elif self.args.action == 'test':
+            self.test(self.args.classifier, self.args.outputs_folder, self.args.models_folder)
 
     def load_data(self, data_folder, action):
         self.mndata = MNIST(data_folder)
@@ -67,7 +91,6 @@ class Application:
         self.load_last_classifier(classifier_name, models_folder)
         test_number = len(self.mndata.test_images)
         timer_start()
-        print(outputs_folder)
         for t in range(test_number):
             self.update_statistics(self.mndata.test_labels[t], self.classifier.predict(
                 self.mndata.test_images[t]), outputs_folder + 'results.txt', outputs_folder + 'confusion.txt')
@@ -106,9 +129,6 @@ class Application:
             for i in range(10):
                 result.write('\n'+str(self.digit_success[i]))
                 result.write('\n'+str(self.digits[i]))
-
-    def add_classifier(self, name, classifier):
-        self.classifiers[name] = classifier
 
     def get_classifier_list(self):
         return list(self.classifiers.keys())

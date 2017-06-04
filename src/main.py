@@ -1,15 +1,21 @@
-import argparse
-
 from application import Application
 
 from perceptron import PerceptronClassifier
 from multilayer import MultilayerPerceptronClassifier
 
-parser = argparse.ArgumentParser()
-app = Application()
+classifiers = {
+    "Perceptron": PerceptronClassifier,
+    "MultilayerPerceptron": MultilayerPerceptronClassifier
+}
 
+app = Application(classifiers)
+app.run()
+
+'''
 app.add_classifier("Perceptron", PerceptronClassifier)
 app.add_classifier("MultilayerPerceptron", MultilayerPerceptronClassifier)
+
+app.run()
 
 parser.add_argument('action', choices=['train', 'test'])
 parser.add_argument('classifier', choices=app.get_classifier_list())
@@ -25,4 +31,4 @@ parser.add_argument('--it', default=1000, type=int)
 parser.add_argument('--activation', default='sgn', choices=['sgn', 'sigmoid', 'tanh', 'ntanh', 'nsig'])
 
 args = parser.parse_args()
-app.run(args)
+app.run(args)'''

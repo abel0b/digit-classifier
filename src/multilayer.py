@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 class MultilayerPerceptronClassifier(Classifier):
 
     def init(self):
-        self.network = Network([784, 800, 400, 10], args.activation)
+        self.network = Network([784, 100, 100, 10], self.args.activation)
 
     def train(self, images, labels):
         if self.args.activation == 'tanh':
@@ -55,7 +55,7 @@ class Network:
         'sigmoid': utils.sigmoid_prime,
         'tanh' : utils.tanh_prime,
         'ntanh' : utils.ntanh_prime,
-        'nsig' : lambda x! self.f['nsig'](x)*(1-self.f['nsig'](x))
+        'nsig' : lambda x: self.f['nsig'](x)*(1-self.f['nsig'](x))
     }
 
     def __init__(self, sizes, activation='sigmoid'):
@@ -137,14 +137,12 @@ class Network:
 
         # Calcul sur la couche de sortie
         delta[-1] = numpy.multiply(z-t, self.sigmoid_prime[-1](self.layers[-1].w_inp + self.layers[-1].b))
-        delta[-1] = numpy.multiply(z-t, self.sigmoid_prime[-1](self.layers[-1].w_inp))
         nablaw[-1] = numpy.outer(delta[-1], self.layers[-2].out)
         nablab[-1] = delta[-1]
 
         # Calcul sur les couches cachées
         for d in range(-2, -self.depth-1, -1):
             delta[d] = numpy.multiply(numpy.matmul(delta[d+1], self.layers[d+1].W), self.sigmoid_prime[d](self.layers[d].w_inp + self.layers[d].b))
-            delta[d] = numpy.multiply(numpy.matmul(delta[d+1], self.layers[d+1].W), self.sigmoid_prime[d](self.layers[d].w_inp))
             if d == -self.depth:
                 a = x
             else:

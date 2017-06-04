@@ -1,13 +1,19 @@
-class Classifier:
-    def __init__(self, args):
-        self.args = args
-        self.init()
+from argparse import Namespace
+from abc import abstractmethod
 
-    def init(self):
+class Classifier:
+    args = Namespace()
+
+    def __init__(self, options):
+        self.add_arguments(options)
+
+    def add_arguments(self, options):
         pass
 
+    @abstractmethod
     def train(self, images, labels):
         pass
 
+    @abstractmethod
     def predict(self, image):
         pass

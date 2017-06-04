@@ -15,8 +15,12 @@ class PerceptronClassifier(Classifier):
 
     def init(self):
         def sgn(x): return 1 if x >= 0 else 0
-        self.perceptrons = [Perceptron(
-            28 * 28, activation_function=self.activation[self.args.activation]) for i in range(10)]
+        self.perceptrons = [Perceptron(28 * 28, activation_function=self.activation[self.args.activation]) for i in range(10)]
+
+    def add_arguments(self, options):
+        options.add_argument('--eta', default=0.01, type=float, help="Pas d'apprentissage")
+        options.add_argument('--it', default=1000, type=int, help="Nombre d'exemple d'apprentissage")
+        options.add_argument('--activation', default='sgn', choices=['sgn', 'sigmoid'], help="Fonction d'activation")
 
     def train(self, images, labels):
         timer_start()
