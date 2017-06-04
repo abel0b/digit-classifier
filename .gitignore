@@ -2,5 +2,7 @@
 .ipynb_checkpoints*
 scripts/script.sh
 scripts/out*
-output*
-models*
+outputs/*
+!outputs/.gitkeep
+models/*
+!models/.gitkeep
