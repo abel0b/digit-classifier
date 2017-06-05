@@ -7,15 +7,16 @@ import datetime as dt
 import argparse
 import os
 import re
+import pickle
 
 from utils import log, print_remaining_time, timer_start
 
+from classifier import DigitClassifier
+
 import sys
 
-
 class Application:
-    options = {}
-    opt = {}
+    parser = {}
 
     def __init__(self, classifiers):
         self.classifiers = classifiers
@@ -24,15 +25,18 @@ class Application:
         parser.add_argument('action', choices=['train', 'test'])
 
         subparsers = parser.add_subparsers(dest = 'classifier')
+
         for name, classifier in self.classifiers.items():
-            self.options[name] = subparsers.add_parser(name)
+            self.parser[name] = subparsers.add_parser(name)
 
         name = parser.parse_known_args()[0].classifier
 
-        options = self.options[name].add_argument_group('options')
-        self.classifier = self.classifiers[name](options)
+        config_group = self.parser[name].add_argument_group('config')
+        self.classifier = self.classifiers[name](config_group)
 
-        folders = self.options[name].add_argument_group('folders')
+        self.config = sorted({ name: value for (name, value) in parser.parse_known_args()[0]._get_kwargs() if name in [action.dest for action in config_group._group_actions]}.items(), key=lambda t: t[0])
+
+        folders = self.parser[name].add_argument_group('folders')
         folders.add_argument('--data-folder', default='../data/raw/')
         folders.add_argument('--models-folder', default='../models/')
         folders.add_argument('--outputs-folder', default='../outputs/')
@@ -61,21 +65,12 @@ class Application:
         self.mndata.train_images = numpy.array(self.mndata.train_images, dtype="float64") / 255
         self.mndata.test_images = numpy.array(self.mndata.test_images, dtype="float64") / 255
 
-    def load_last_classifier(self, classifier_name, classifier_folder):
-        l = os.listdir(classifier_folder)
-        l = list(filter(re.compile(classifier_name + '*').match, l))
-        l.sort()
-        if len(l) == 0:
-            log("Aucune sauvegarde de " + classifier_name + " n'a été enregistrer, essayez :")
-            log("python3 main.py train " + classifier_name)
-        else:
-            self.load_classifier(l[-1], classifier_folder)
-
-    def load_classifier(self, classifier_file, classifier_folder):
-        classifier_save = numpy.load(classifier_folder + classifier_file)
-        classifier_name = classifier_file.split('_')[0]
-        self.classifier.load_save(classifier_save)
-        log("classifieur '" + classifier_file + "' chargé")
+    def load_model(self):
+        try:
+            return DigitClassifier.load(self.model_file)
+        except FileNotFoundError:
+            log("Le fichier " + self.model_file + " n'existe pas.")
+            sys.exit()
 
     def init_test(self):
         self.tested = 0
@@ -88,7 +83,7 @@ class Application:
 
     def test(self, classifier_name, outputs_folder, models_folder):
         self.init_test()
-        self.load_last_classifier(classifier_name, models_folder)
+        self.classifier = self.load_model()
         test_number = len(self.mndata.test_images)
         timer_start()
         for t in range(test_number):
@@ -130,13 +125,13 @@ class Application:
                 result.write('\n'+str(self.digit_success[i]))
                 result.write('\n'+str(self.digits[i]))
 
-    def get_classifier_list(self):
-        return list(self.classifiers.keys())
-
     def train(self, classifier_name, models_folder):
         start = time.time()
         self.classifier.train(self.mndata.train_images, self.mndata.train_labels)
         log("entrainé en " + str(time.time() - start) + "s")
-        filepath = models_folder + classifier_name + '_' + \
-            dt.datetime.now().strftime("%Y-%m-%d_%H:%M:%S") + '.npy'
-        numpy.save(filepath, self.classifier.get_save())
+
+        self.classifier.save(self.model_file)
+
+    @property
+    def model_file(self):
+        return self.args.models_folder + self.args.classifier + '_' + '_'.join(str(value) for (name, value) in self.config) + '.pkl'

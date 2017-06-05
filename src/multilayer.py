@@ -1,14 +1,19 @@
 
-from classifier import Classifier
+from classifier import DigitClassifier
 from perceptron import Perceptron
 import random, utils, numpy
 import matplotlib.pyplot as plt
 
 
-class MultilayerPerceptronClassifier(Classifier):
+class MultilayerPerceptronClassifier(DigitClassifier):
 
     def init(self):
-        self.network = Network([784, 100, 10], self.args.activation)
+        self.network = Network([784, 20, 10], self.args.activation)
+
+    def add_arguments(self, config):
+        config.add_argument('--eta', default=0.01, type=float, help="Pas d'apprentissage")
+        config.add_argument('--it', default=1000, type=int, help="Nombre d'exemple d'apprentissage")
+        config.add_argument('--activation', default='sgn', choices=['sigmoid', 'tanh'], help="Fonction d'activation")
 
     def train(self, images, labels):
         if self.args.activation == 'tanh':
@@ -31,15 +36,6 @@ class MultilayerPerceptronClassifier(Classifier):
     def predict(self, image):
         y = self.network.feed_forward(image)
         return numpy.argmax(y)
-
-    def get_save(self):
-        return [(self.network.layers[k].W, self.network.layers[k].b) for k in range(self.network.depth)]
-
-    def load_save(self, save):
-        k = 0
-        for W, b in save:
-            self.network.layers[k].set_weights(W, b)
-            k += 1
 
 
 class Network:
@@ -93,7 +89,7 @@ class Network:
                 utils.print_remaining_time(i, it)
                 print('coût', self.costk)
 
-    def mini_batch_train(self, inputs, expected_outputs, it=1000, eta=0.1, verbose=False, mini_batch_size=50):
+    def mini_batch_train(self, inputs, expected_outputs, it=1000, eta=0.1, verbose=False, mini_batch_size=10):
         epochs = it // mini_batch_size
         self.cost = numpy.zeros(epochs)
 

@@ -1,4 +1,4 @@
-from classifier import Classifier
+from classifier import DigitClassifier
 import random
 import numpy
 import time
@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from utils import sgn, sigmoid, timer_start, print_remaining_time
 
 
-class PerceptronClassifier(Classifier):
+class PerceptronClassifier(DigitClassifier):
     activation = {
         'sgn': sgn,
         'sigmoid': sigmoid
@@ -17,10 +17,10 @@ class PerceptronClassifier(Classifier):
         def sgn(x): return 1 if x >= 0 else 0
         self.perceptrons = [Perceptron(28 * 28, activation_function=self.activation[self.args.activation]) for i in range(10)]
 
-    def add_arguments(self, options):
-        options.add_argument('--eta', default=0.01, type=float, help="Pas d'apprentissage")
-        options.add_argument('--it', default=1000, type=int, help="Nombre d'exemple d'apprentissage")
-        options.add_argument('--activation', default='sgn', choices=['sgn', 'sigmoid'], help="Fonction d'activation")
+    def add_arguments(self, config):
+        config.add_argument('--eta', default=0.01, type=float, help="Pas d'apprentissage")
+        config.add_argument('--it', default=1000, type=int, help="Nombre d'exemple d'apprentissage")
+        config.add_argument('--activation', default='sgn', choices=['sgn', 'sigmoid'], help="Fonction d'activation")
 
     def train(self, images, labels):
         timer_start()
@@ -44,16 +44,6 @@ class PerceptronClassifier(Classifier):
             return numpy.argmax(output)
         else:
             return -1
-
-    def get_save(self):
-        return [(self.perceptrons[i].weights, self.perceptrons[i].bias) for i in range(10)]
-
-    def load_save(self, save):
-        i = 0
-        for weights, bias in save:
-            self.perceptrons[i].weights = weights
-            self.perceptrons[i].bias = bias
-            i += 1
 
     def plot_error(self, it):
         for i in range(10):
