@@ -6,7 +6,9 @@ import matplotlib.pyplot as plt
 
 
 class MultilayerPerceptronClassifier(DigitClassifier):
-
+    """
+        MultilayerPerceptronClassifier
+    """
     def init(self):
         self.network = Network([784, 20, 10], self.args.activation)
 
@@ -39,7 +41,9 @@ class MultilayerPerceptronClassifier(DigitClassifier):
 
 
 class Network:
-
+    """
+        Network
+    """
     f = {
         'sigmoid': utils.sigmoid,
         'tanh': utils.tanh,
@@ -152,7 +156,9 @@ class Network:
 
 
 class Layer:
-
+    """
+        Leyer
+    """
     def __init__(self, insize, outsize, activation=utils.sigmoid):
         self.insize = insize
         self.outsize = outsize

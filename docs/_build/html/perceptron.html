@@ -1,0 +1,170 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="fr">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>perceptron module &#8212; documentation TIPE 1.0</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/translations.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Recherche" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-perceptron">
+<span id="perceptron-module"></span><h1>perceptron module<a class="headerlink" href="#module-perceptron" title="Lien permanent vers ce titre">¶</a></h1>
+<dl class="class">
+<dt id="perceptron.Perceptron">
+<em class="property">class </em><code class="descclassname">perceptron.</code><code class="descname">Perceptron</code><span class="sig-paren">(</span><em>d</em>, <em>activation_function=&lt;function sgn&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/perceptron.html#Perceptron"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#perceptron.Perceptron" title="Lien permanent vers cette définition">¶</a></dt>
+<dd><p>Bases : <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="perceptron.Perceptron.output">
+<code class="descname">output</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/perceptron.html#Perceptron.output"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#perceptron.Perceptron.output" title="Lien permanent vers cette définition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="perceptron.Perceptron.success_rate">
+<code class="descname">success_rate</code><span class="sig-paren">(</span><em>data</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/perceptron.html#Perceptron.success_rate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#perceptron.Perceptron.success_rate" title="Lien permanent vers cette définition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="perceptron.Perceptron.train">
+<code class="descname">train</code><span class="sig-paren">(</span><em>images</em>, <em>labels</em>, <em>digit</em>, <em>it=10000</em>, <em>plot_error=False</em>, <em>eta=0.01</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/perceptron.html#Perceptron.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#perceptron.Perceptron.train" title="Lien permanent vers cette définition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="perceptron.Perceptron.update_weights">
+<code class="descname">update_weights</code><span class="sig-paren">(</span><em>delta</em>, <em>vec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/perceptron.html#Perceptron.update_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#perceptron.Perceptron.update_weights" title="Lien permanent vers cette définition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="perceptron.PerceptronClassifier">
+<em class="property">class </em><code class="descclassname">perceptron.</code><code class="descname">PerceptronClassifier</code><span class="sig-paren">(</span><em>options</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/perceptron.html#PerceptronClassifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#perceptron.PerceptronClassifier" title="Lien permanent vers cette définition">¶</a></dt>
+<dd><p>Bases : <a class="reference internal" href="classifier.html#classifier.DigitClassifier" title="classifier.DigitClassifier"><code class="xref py py-class docutils literal"><span class="pre">classifier.DigitClassifier</span></code></a></p>
+<dl class="attribute">
+<dt id="perceptron.PerceptronClassifier.activation">
+<code class="descname">activation</code><em class="property"> = {“sigmoid”: &lt;function sigmoid&gt;, “sgn”: &lt;function sgn&gt;}</em><a class="headerlink" href="#perceptron.PerceptronClassifier.activation" title="Lien permanent vers cette définition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="perceptron.PerceptronClassifier.add_arguments">
+<code class="descname">add_arguments</code><span class="sig-paren">(</span><em>config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/perceptron.html#PerceptronClassifier.add_arguments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#perceptron.PerceptronClassifier.add_arguments" title="Lien permanent vers cette définition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="perceptron.PerceptronClassifier.init">
+<code class="descname">init</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/perceptron.html#PerceptronClassifier.init"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#perceptron.PerceptronClassifier.init" title="Lien permanent vers cette définition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="perceptron.PerceptronClassifier.plot_error">
+<code class="descname">plot_error</code><span class="sig-paren">(</span><em>it</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/perceptron.html#PerceptronClassifier.plot_error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#perceptron.PerceptronClassifier.plot_error" title="Lien permanent vers cette définition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="perceptron.PerceptronClassifier.predict">
+<code class="descname">predict</code><span class="sig-paren">(</span><em>image</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/perceptron.html#PerceptronClassifier.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#perceptron.PerceptronClassifier.predict" title="Lien permanent vers cette définition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="perceptron.PerceptronClassifier.predict_sgn">
+<code class="descname">predict_sgn</code><span class="sig-paren">(</span><em>output</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/perceptron.html#PerceptronClassifier.predict_sgn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#perceptron.PerceptronClassifier.predict_sgn" title="Lien permanent vers cette définition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="perceptron.PerceptronClassifier.predict_sigmoid">
+<code class="descname">predict_sigmoid</code><span class="sig-paren">(</span><em>output</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/perceptron.html#PerceptronClassifier.predict_sigmoid"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#perceptron.PerceptronClassifier.predict_sigmoid" title="Lien permanent vers cette définition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="perceptron.PerceptronClassifier.train">
+<code class="descname">train</code><span class="sig-paren">(</span><em>images</em>, <em>labels</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/perceptron.html#PerceptronClassifier.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#perceptron.PerceptronClassifier.train" title="Lien permanent vers cette définition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>Cette page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/perceptron.rst.txt"
+            rel="nofollow">Montrer le code source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Recherche rapide</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Abel Calluaud.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/perceptron.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

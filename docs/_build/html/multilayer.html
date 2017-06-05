@@ -1,0 +1,187 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="fr">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>multilayer module &#8212; documentation TIPE 1.0</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/translations.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Recherche" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-multilayer">
+<span id="multilayer-module"></span><h1>multilayer module<a class="headerlink" href="#module-multilayer" title="Lien permanent vers ce titre">¶</a></h1>
+<dl class="class">
+<dt id="multilayer.Layer">
+<em class="property">class </em><code class="descclassname">multilayer.</code><code class="descname">Layer</code><span class="sig-paren">(</span><em>insize</em>, <em>outsize</em>, <em>activation=&lt;function sigmoid&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/multilayer.html#Layer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#multilayer.Layer" title="Lien permanent vers cette définition">¶</a></dt>
+<dd><p>Bases : <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Leyer</p>
+<dl class="method">
+<dt id="multilayer.Layer.output">
+<code class="descname">output</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/multilayer.html#Layer.output"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#multilayer.Layer.output" title="Lien permanent vers cette définition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="multilayer.Layer.set_weights">
+<code class="descname">set_weights</code><span class="sig-paren">(</span><em>W</em>, <em>b</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/multilayer.html#Layer.set_weights"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#multilayer.Layer.set_weights" title="Lien permanent vers cette définition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="multilayer.MultilayerPerceptronClassifier">
+<em class="property">class </em><code class="descclassname">multilayer.</code><code class="descname">MultilayerPerceptronClassifier</code><span class="sig-paren">(</span><em>options</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/multilayer.html#MultilayerPerceptronClassifier"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#multilayer.MultilayerPerceptronClassifier" title="Lien permanent vers cette définition">¶</a></dt>
+<dd><p>Bases : <a class="reference internal" href="classifier.html#classifier.DigitClassifier" title="classifier.DigitClassifier"><code class="xref py py-class docutils literal"><span class="pre">classifier.DigitClassifier</span></code></a></p>
+<dl class="method">
+<dt id="multilayer.MultilayerPerceptronClassifier.add_arguments">
+<code class="descname">add_arguments</code><span class="sig-paren">(</span><em>config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/multilayer.html#MultilayerPerceptronClassifier.add_arguments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#multilayer.MultilayerPerceptronClassifier.add_arguments" title="Lien permanent vers cette définition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="multilayer.MultilayerPerceptronClassifier.init">
+<code class="descname">init</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/multilayer.html#MultilayerPerceptronClassifier.init"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#multilayer.MultilayerPerceptronClassifier.init" title="Lien permanent vers cette définition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="multilayer.MultilayerPerceptronClassifier.plot_error">
+<code class="descname">plot_error</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/multilayer.html#MultilayerPerceptronClassifier.plot_error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#multilayer.MultilayerPerceptronClassifier.plot_error" title="Lien permanent vers cette définition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="multilayer.MultilayerPerceptronClassifier.predict">
+<code class="descname">predict</code><span class="sig-paren">(</span><em>image</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/multilayer.html#MultilayerPerceptronClassifier.predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#multilayer.MultilayerPerceptronClassifier.predict" title="Lien permanent vers cette définition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="multilayer.MultilayerPerceptronClassifier.train">
+<code class="descname">train</code><span class="sig-paren">(</span><em>images</em>, <em>labels</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/multilayer.html#MultilayerPerceptronClassifier.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#multilayer.MultilayerPerceptronClassifier.train" title="Lien permanent vers cette définition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="multilayer.Network">
+<em class="property">class </em><code class="descclassname">multilayer.</code><code class="descname">Network</code><span class="sig-paren">(</span><em>sizes</em>, <em>activation=”sigmoid”</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/multilayer.html#Network"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#multilayer.Network" title="Lien permanent vers cette définition">¶</a></dt>
+<dd><p>Bases : <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="multilayer.Network.backpropagate">
+<code class="descname">backpropagate</code><span class="sig-paren">(</span><em>x</em>, <em>z</em>, <em>t</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/multilayer.html#Network.backpropagate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#multilayer.Network.backpropagate" title="Lien permanent vers cette définition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="multilayer.Network.df">
+<code class="descname">df</code><em class="property"> = {“nsig”: &lt;function Network.&lt;lambda&gt;&gt;, “ntanh”: &lt;function ntanh_prime&gt;, “tanh”: &lt;function tanh_prime&gt;, “sigmoid”: &lt;function sigmoid_prime&gt;}</em><a class="headerlink" href="#multilayer.Network.df" title="Lien permanent vers cette définition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="multilayer.Network.f">
+<code class="descname">f</code><em class="property"> = {“nsig”: &lt;function Network.&lt;lambda&gt;&gt;, “ntanh”: &lt;function ntanh&gt;, “tanh”: &lt;function tanh&gt;, “sigmoid”: &lt;function sigmoid&gt;}</em><a class="headerlink" href="#multilayer.Network.f" title="Lien permanent vers cette définition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="multilayer.Network.feed_forward">
+<code class="descname">feed_forward</code><span class="sig-paren">(</span><em>x</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/multilayer.html#Network.feed_forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#multilayer.Network.feed_forward" title="Lien permanent vers cette définition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="multilayer.Network.init_gradient">
+<code class="descname">init_gradient</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/multilayer.html#Network.init_gradient"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#multilayer.Network.init_gradient" title="Lien permanent vers cette définition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="multilayer.Network.mini_batch_train">
+<code class="descname">mini_batch_train</code><span class="sig-paren">(</span><em>inputs</em>, <em>expected_outputs</em>, <em>it=1000</em>, <em>eta=0.1</em>, <em>verbose=False</em>, <em>mini_batch_size=10</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/multilayer.html#Network.mini_batch_train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#multilayer.Network.mini_batch_train" title="Lien permanent vers cette définition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="multilayer.Network.train">
+<code class="descname">train</code><span class="sig-paren">(</span><em>inputs</em>, <em>expected_outputs</em>, <em>it=1000</em>, <em>eta=0.1</em>, <em>verbose=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/multilayer.html#Network.train"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#multilayer.Network.train" title="Lien permanent vers cette définition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>Cette page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/multilayer.rst.txt"
+            rel="nofollow">Montrer le code source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Recherche rapide</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Abel Calluaud.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="_sources/multilayer.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

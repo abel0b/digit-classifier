@@ -8,6 +8,9 @@ from utils import sgn, sigmoid, timer_start, print_remaining_time
 
 
 class PerceptronClassifier(DigitClassifier):
+    """
+        PerceptronClassifier
+    """
     activation = {
         'sgn': sgn,
         'sigmoid': sigmoid
@@ -57,6 +60,9 @@ class PerceptronClassifier(DigitClassifier):
 
 
 class Perceptron:
+    """
+        Perceptron
+    """
     def __init__(self, d, activation_function=sgn):
         self.d = d
         self.activation_function = activation_function

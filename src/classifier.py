@@ -5,6 +5,9 @@ from pickle import dump, load
 from utils import log
 
 class DigitClassifier:
+    """
+        DigitClassifier
+    """
     args = Namespace()
 
     def __init__(self, options):

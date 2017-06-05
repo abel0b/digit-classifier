@@ -16,6 +16,9 @@ from classifier import DigitClassifier
 import sys
 
 class Application:
+    """
+        Application
+    """
     parser = {}
 
     def __init__(self, classifiers):
