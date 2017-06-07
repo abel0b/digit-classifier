@@ -1,25 +1,27 @@
 
 
+act = 'sgn'
+
+perceptron_train = 'python3 ../src/main.py train Perceptron --activation {2} --it {0} --eta {1} --outputs-folder ./out/ --models-folder ./mod/'
+
+perceptron_test = 'python3 ../src/main.py test Perceptron --activation {2} --it {0} --eta {1} --outputs-folder ./out/ --models-folder ./mod/'
 
 
-perceptron = 'python3 ../src/main.py train Perceptron --activation {2} --it {0} --eta {1} --confusion-matrix-file ./output/perceptron_{0}_{1}_{2}_confusion.txt --error-file ./output/perceptron_{0}_{1}_{2}_error.npy --error-img ./output/perceptron_{0}_{1}_{2}_error.png --results-file ./output/perceptron_{0}_{1}_{2}_results.txt'
-
-perceptron_test = 'python3 ../src/main.py test Perceptron --activation {2} --it {0} --eta {1} --confusion-matrix-file ./output/perceptron_{0}_{1}_{2}_confusion.txt --error-file ./output/perceptron_{0}_{1}_{2}_error.npy --error-img ./output/perceptron_{0}_{1}_{2}_error.png --results-file ./output/perceptron_{0}_{1}_{2}_results.txt'
-
-it = [10, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1500, 2000, 2500, 3000, 4000, 5000, 6000]
-eta = [5, 1, 0.5, 0.4, 0.2, 0.1, 0.05, 0.02, 0.01, 0.005, 0.001, 0.0005]
+it = [k*100 for k in range(1000)]
+eta = [10, 1, 0.1, 0.01, 0.001]
 
 l = ['#!/bin/bash']
 
-def pgen(act):
+def gen_script(act):
     for k in range(len(it)):
         for j in range(len(eta)):
-            l.append(perceptron.format(it[k], eta[j], act))
+            l.append(perceptron_train.format(it[k], eta[j], act))
             l.append(perceptron_test.format(it[k], eta[j], act))
 
-pgen('sigmoid')
-pgen('sgn')
+gen_script('sgn')
 
-with open('script.sh', 'w') as fi:
+with open('script.sh', 'w') as filehandler:
     for i in range(len(l)):
-        fi.write('\n'+l[i])
+        filehandler.write('\n'+l[i])
+        if i % len(l) == 0:
+            filehandler.write('\necho ' + str(i / len(l) * 100) + '%')

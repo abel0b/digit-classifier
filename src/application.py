@@ -70,9 +70,9 @@ class Application:
 
     def load_model(self):
         try:
-            return DigitClassifier.load(self.model_file)
+            return DigitClassifier.load(self.model_file + '.pkl')
         except FileNotFoundError:
-            log("Le fichier " + self.model_file + " n'existe pas.")
+            log("Le fichier " + self.model_file + ".pkl n'existe pas.")
             sys.exit()
 
     def init_test(self):
@@ -91,10 +91,10 @@ class Application:
         timer_start()
         for t in range(test_number):
             self.update_statistics(self.mndata.test_labels[t], self.classifier.predict(
-                self.mndata.test_images[t]), outputs_folder + 'results.txt', outputs_folder + 'confusion.txt')
+                self.mndata.test_images[t]), self.output_file + '.txt', outputs_folder + 'confusion.txt')
             print_remaining_time(t, test_number)
         print(numpy.loadtxt(outputs_folder + 'confusion.txt').astype(int))
-        with open(outputs_folder + 'results.txt', 'r') as results_file:
+        with open(self.output_file + '.txt', 'r') as results_file:
             data = results_file.read()
         print(data)
         plt.bar(range(10), 100*numpy.divide(self.digit_success,self.digits))
@@ -133,8 +133,12 @@ class Application:
         self.classifier.train(self.mndata.train_images, self.mndata.train_labels)
         log("entrainé en " + str(time.time() - start) + "s")
 
-        self.classifier.save(self.model_file)
+        self.classifier.save(self.model_file + '.pkl')
 
     @property
     def model_file(self):
-        return self.args.models_folder + self.args.classifier + '_' + '_'.join(str(value) for (name, value) in self.config) + '.pkl'
+        return self.args.models_folder + self.args.classifier + '_' + '_'.join(str(value) for (name, value) in self.config)
+
+    @property
+    def output_file(self):
+        return self.args.outputs_folder + self.args.classifier + '_' + '_'.join(str(value) for (name, value) in self.config)
