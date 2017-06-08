@@ -1,5 +1,5 @@
 import numpy
-import struct
+from struct import unpack
 from os.path import isfile
 
 class Mnist:
@@ -10,17 +10,16 @@ class Mnist:
         self.test_images = datafolder + 'processed/test_images.npy'
         self.test_labels = datafolder + 'processed/test_labels.npy'
 
-    def preprocess(dataloader, normalize = True, bounding_box = False):
-        def get_processed_data(self):
-            (labels_train, images_train), (labels_test, images_test) = dataloader(self)
-            print(images_train.shape)
-            return (labels_train, images_train / 255), (labels_test, images_test / 255)
-        return get_processed_data
+    def preprocess(images, negative = False, bounding_box = False):
+        return images / 255
 
-    @preprocess
-    def load(self):
-        train, test = self.load_training(), self.load_testing()
-        print(train[1].shape, test[1].shape)
+    def load(self, mode):
+        if mode == 'train':
+            return self.load_training(), (numpy.empty(0), numpy.empty(0))
+        elif mode == 'test':
+            return (numpy.empty(0), numpy.empty(0)), self.load_testing()
+        elif mode =='traintest':
+            return self.load_training(), self.load_testing()
 
     def load_training(self):
         if isfile(self.train_labels) and isfile(self.train_images):
@@ -36,7 +35,7 @@ class Mnist:
 
     def load_labels(self, filename, mode):
         with open(filename, 'rb') as filehandler:
-            magic, n = struct.unpack('>II', filehandler.read(8))
+            magic, size = unpack('>II', filehandler.read(8))
             labels = numpy.fromfile(filehandler, dtype=numpy.uint8)
             if mode == 'train':
                 with open(self.train_labels, 'wb') as filehandler:
@@ -48,29 +47,24 @@ class Mnist:
 
     def load_images(self, filename, mode):
         with open(filename, 'rb') as filehandler:
-            magic, num, rows, cols = struct.unpack(">IIII", filehandler.read(16))
-            images = numpy.fromfile(filehandler, dtype=numpy.float64)
-            images = images.reshape(images.shape[0] // 784,784)
+            magic, size, rows, cols = unpack(">IIII", filehandler.read(16))
+            images = numpy.fromfile(filehandler, dtype=numpy.uint8).astype(numpy.float64).reshape(size, 784)
             if mode == 'train':
                 with open(self.train_images, 'wb') as filehandler:
                     numpy.save(filehandler, images)
             elif mode == 'test':
                 with open(self.test_images, 'wb') as filehandler:
                     numpy.save(filehandler, images)
-            return images
+            return self.preprocess(images)
 
     @staticmethod
     def print_image(image):
+        txt = ''
         for i in range(28):
+            txt += '\n'
             for j in range(28):
-                line = ''
                 if image[i*28+j] >= 0.5:
-                    line += '#'
+                    txt += '█'
                 else:
-                    line += ' '
-            print(line)
-
-
-loader = Mnist('../data/')
-(train_label, train_image), (test_label, test_images) = loader.load()
-loader.print_image(train_image[0])
+                    txt += ' '
+        print(txt)

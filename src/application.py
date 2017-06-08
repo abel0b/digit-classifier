@@ -1,4 +1,3 @@
-from mnist import MNIST
 import numpy
 import random
 import time
@@ -12,6 +11,7 @@ import pickle
 from utils import log, print_remaining_time, timer_start
 
 from classifier import DigitClassifier
+from dataset import Mnist
 
 import sys
 
@@ -40,7 +40,7 @@ class Application:
         self.config = sorted({ name: value for (name, value) in parser.parse_known_args()[0]._get_kwargs() if name in [action.dest for action in config_group._group_actions]}.items(), key=lambda t: t[0])
 
         folders = self.parser[name].add_argument_group('folders')
-        folders.add_argument('--data-folder', default='../data/raw/')
+        folders.add_argument('--data-folder', default='../data/')
         folders.add_argument('--models-folder', default='../models/')
         folders.add_argument('--outputs-folder', default='../outputs/')
 
@@ -56,17 +56,9 @@ class Application:
             self.test(self.args.classifier, self.args.outputs_folder, self.args.models_folder)
 
     def load_data(self, data_folder, action):
-        self.mndata = MNIST(data_folder)
-        if action == 'train':
-            self.mndata.load_training()
-        elif action == 'test':
-            self.mndata.load_testing()
-        self.normalize_data()
+        mnist = Mnist(data_folder)
+        (self.train_labels, self.train_images), (self.test_labels, self.test_images) = mnist.load(action)
         log("données chargées")
-
-    def normalize_data(self):
-        self.mndata.train_images = numpy.array(self.mndata.train_images, dtype="float64") / 255
-        self.mndata.test_images = numpy.array(self.mndata.test_images, dtype="float64") / 255
 
     def load_model(self):
         try:
@@ -87,11 +79,11 @@ class Application:
     def test(self, classifier_name, outputs_folder, models_folder):
         self.init_test()
         self.classifier = self.load_model()
-        test_number = len(self.mndata.test_images)
+        test_number = len(self.test_images)
         timer_start()
         for t in range(test_number):
-            self.update_statistics(self.mndata.test_labels[t], self.classifier.predict(
-                self.mndata.test_images[t]), self.output_file + '.txt', outputs_folder + 'confusion.txt')
+            self.update_statistics(self.test_labels[t], self.classifier.predict(
+                self.test_images[t]), self.output_file + '.txt', outputs_folder + 'confusion.txt')
             print_remaining_time(t, test_number)
         print(numpy.loadtxt(outputs_folder + 'confusion.txt').astype(int))
         with open(self.output_file + '.txt', 'r') as results_file:
@@ -130,7 +122,7 @@ class Application:
 
     def train(self, classifier_name, models_folder):
         start = time.time()
-        self.classifier.train(self.mndata.train_images, self.mndata.train_labels)
+        self.classifier.train(self.train_images, self.train_labels)
         log("entrainé en " + str(time.time() - start) + "s")
 
         self.classifier.save(self.model_file + '.pkl')
