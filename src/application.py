@@ -57,7 +57,7 @@ class Application:
 
     def load_data(self, data_folder, action):
         mnist = Mnist(data_folder)
-        (self.train_labels, self.train_images), (self.test_labels, self.test_images) = mnist.load(action)
+        (self.train_labels, self.train_images), (self.test_labels, self.test_images) = mnist.load(action == 'train', action == 'test')
         log("données chargées")
 
     def load_model(self):

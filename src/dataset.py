@@ -5,56 +5,51 @@ from os.path import isfile
 class Mnist:
     def __init__(self, datafolder):
         self.datafolder = datafolder
-        self.train_images = datafolder + 'processed/train_images.npy'
-        self.train_labels = datafolder + 'processed/train_labels.npy'
-        self.test_images = datafolder + 'processed/test_images.npy'
-        self.test_labels = datafolder + 'processed/test_labels.npy'
+        self.trainfile = datafolder + 'processed/train.npz'
+        self.testfile = datafolder + 'processed/test.npz'
 
-    def preprocess(images, negative = False, bounding_box = False):
+    def preprocess(self, images, negative = False, bounding_box = False):
         return images / 255
 
-    def load(self, mode):
-        if mode == 'train':
+    def load(self, train = False, test = False):
+        if train:
             return self.load_training(), (numpy.empty(0), numpy.empty(0))
-        elif mode == 'test':
+        elif test:
             return (numpy.empty(0), numpy.empty(0)), self.load_testing()
-        elif mode =='traintest':
+        else:
             return self.load_training(), self.load_testing()
 
     def load_training(self):
-        if isfile(self.train_labels) and isfile(self.train_images):
-            return numpy.load(self.train_labels), numpy.load(self.train_images)
+        if isfile(self.trainfile):
+            arr = numpy.load(self.trainfile)
+            return arr['labels'], arr['images']
         else:
-            return self.load_labels(self.datafolder + 'raw/train-labels-idx1-ubyte', 'train'), self.load_images(self.datafolder + 'raw/train-images-idx3-ubyte', 'train')
+            labels, images = self.load_labels(self.datafolder + 'raw/train-labels-idx1-ubyte', 'train'), self.load_images(self.datafolder + 'raw/train-images-idx3-ubyte', 'train')
+            self.save(labels, images, self.trainfile)
+            return labels, images
 
     def load_testing(self):
-        if isfile(self.test_labels) and isfile(self.test_images):
-            return numpy.load(self.test_labels), numpy.load(self.test_images)
+        if isfile(self.testfile):
+            arr = numpy.load(self.testfile)
+            return arr['labels'], arr['images']
         else:
-            return self.load_labels(self.datafolder + 'raw/t10k-labels-idx1-ubyte', 'test'), self.load_images(self.datafolder + 'raw/t10k-images-idx3-ubyte', 'test')
+            labels, images = self.load_labels(self.datafolder + 'raw/t10k-labels-idx1-ubyte', 'test'), self.load_images(self.datafolder + 'raw/t10k-images-idx3-ubyte', 'test')
+            self.save(labels, images, self.testfile)
+            return labels, images
+
+    def save(self, labels, images, filename):
+        numpy.savez_compressed(filename, labels, images, 'labels', 'images')
 
     def load_labels(self, filename, mode):
         with open(filename, 'rb') as filehandler:
             magic, size = unpack('>II', filehandler.read(8))
             labels = numpy.fromfile(filehandler, dtype=numpy.uint8)
-            if mode == 'train':
-                with open(self.train_labels, 'wb') as filehandler:
-                    numpy.save(filehandler, labels)
-            elif mode == 'test':
-                with open(self.test_labels, 'wb') as filehandler:
-                    numpy.save(filehandler, labels)
             return labels
 
     def load_images(self, filename, mode):
         with open(filename, 'rb') as filehandler:
             magic, size, rows, cols = unpack(">IIII", filehandler.read(16))
             images = numpy.fromfile(filehandler, dtype=numpy.uint8).astype(numpy.float64).reshape(size, 784)
-            if mode == 'train':
-                with open(self.train_images, 'wb') as filehandler:
-                    numpy.save(filehandler, images)
-            elif mode == 'test':
-                with open(self.test_images, 'wb') as filehandler:
-                    numpy.save(filehandler, images)
             return self.preprocess(images)
 
     @staticmethod
