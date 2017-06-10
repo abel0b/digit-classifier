@@ -1,4 +1,5 @@
 *.pyc
+notebooks*
 .ipynb_checkpoints*
 scripts/script.sh
 scripts/out*
