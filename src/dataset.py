@@ -38,7 +38,7 @@ class Mnist:
             return labels, images
 
     def save(self, labels, images, filename):
-        numpy.savez_compressed(filename, labels, images, 'labels', 'images')
+        numpy.savez_compressed(filename, labels=labels, images=images)
 
     def load_labels(self, filename, mode):
         with open(filename, 'rb') as filehandler:

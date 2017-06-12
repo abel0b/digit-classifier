@@ -93,7 +93,7 @@ class Network:
                 utils.print_remaining_time(i, it)
                 print('coût', self.costk)
 
-    def mini_batch_train(self, inputs, expected_outputs, it=1000, eta=0.1, verbose=False, mini_batch_size=10):
+    def mini_batch_train(self, inputs, expected_outputs, it=1000, eta=0.1, verbose=False, mini_batch_size=50):
         epochs = it // mini_batch_size
         self.cost = numpy.zeros(epochs)
 
@@ -118,6 +118,44 @@ class Network:
             for d in range(self.depth):
                 self.layers[d].W -= eta / mini_batch_size * nablaw[d]
                 self.layers[d].b -= eta / mini_batch_size * nablab[d]
+
+            nablaw, nablab = self.init_gradient()
+
+            if verbose and i % (epochs // 100) == 0:
+                print('cycle', i, 'coût', self.cost[i])
+                utils.print_remaining_time(i, epochs)
+
+    def momentum_mini_batch_train(self, inputs, expected_outputs, it=1000, eta=0.1, verbose=False, mini_batch_size=50):
+        epochs = it // mini_batch_size
+        alpha = .01
+        self.cost = numpy.zeros(epochs)
+
+        nablaw, nablab = self.init_gradient()
+        prev_nablaw, prev_nablab = self.init_gradient()
+
+        utils.timer_start()
+        for i in range(epochs):
+            self.costk = 0.
+            for k in range(mini_batch_size):
+                n = random.randint(0,len(inputs)-1)
+                x, t = inputs[n], expected_outputs[n]
+                z = self.feed_forward(x)
+
+                nw, nb = self.backpropagate(x, z, t)
+
+                for d in range(self.depth):
+                    nablaw[d] += nw[d]
+                    nablab[d] += nb[d]
+
+            self.cost[i] = self.costk / mini_batch_size
+
+            for d in range(self.depth):
+                nablaw[d] /= mini_batch_size
+                nablab[d] /= mini_batch_size
+                self.layers[d].W -= (1-alpha) * eta * nablaw[d] + alpha * eta * prev_nablaw[d]
+                self.layers[d].b -= (1-alpha) * eta * nablab[d] + alpha * eta * prev_nablab[d]
+
+            prev_nablaw, prev_nablab = nablaw, nablab
 
             nablaw, nablab = self.init_gradient()
 
@@ -162,12 +200,8 @@ class Layer:
     def __init__(self, insize, outsize, activation=utils.sigmoid):
         self.insize = insize
         self.outsize = outsize
-        if activation == utils.tanh:
-            self.W = numpy.random.uniform(-1, 1, (outsize, insize))
-            self.b = numpy.random.uniform(-1, 1, outsize)
-        else:
-            self.W = numpy.random.rand(outsize, insize)
-            self.b = numpy.random.rand(outsize)
+        self.W = numpy.random.uniform(-1, 1, (outsize, insize))
+        self.b = numpy.random.uniform(-1, 1, outsize)
         self.activation = activation
 
     def output(self, x):

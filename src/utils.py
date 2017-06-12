@@ -54,7 +54,7 @@ def tanh(x):
     return numpy.tanh(x)
 
 def tanh_prime(x):
-    return 1. + numpy.tanh(x)**2
+    return 1. - numpy.tanh(x)**2
 
 def ntanh(x):
     return 0.5*(numpy.tanh(x)+1)
