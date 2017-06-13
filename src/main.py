@@ -1,10 +1,10 @@
 from application import Application
 
-from perceptron import PerceptronClassifier
+from perceptron import MulticlassPerceptronClassifier
 from multilayer import MultilayerPerceptronClassifier
 
 classifiers = {
-    "Perceptron": PerceptronClassifier,
+    "MulticlassPerceptron": MulticlassPerceptronClassifier,
     "MultilayerPerceptron": MultilayerPerceptronClassifier
 }
 

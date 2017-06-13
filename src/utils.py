@@ -61,3 +61,6 @@ def ntanh(x):
 
 def ntanh_prime(x):
     return 0.5*(1.+numpy.tanh(x)**2)
+
+def softplus(x):
+    return numpy.log(1+numpy.exp(x))

@@ -10,12 +10,14 @@ class MultilayerPerceptronClassifier(DigitClassifier):
         MultilayerPerceptronClassifier
     """
     def init(self):
-        self.network = Network([784, 20, 10], self.args.activation)
+        self.network = Network([784] + self.args.hidden_layers_sizes + [10], self.args.activation)
 
     def add_arguments(self, config):
-        config.add_argument('--eta', default=0.01, type=float, help="Pas d'apprentissage")
-        config.add_argument('--it', default=1000, type=int, help="Nombre d'exemple d'apprentissage")
-        config.add_argument('--activation', default='sgn', choices=['sigmoid', 'tanh'], help="Fonction d'activation")
+        config.add_argument('-eta', default=0.01, type=float, help="Pas d'apprentissage")
+        config.add_argument('-epochs', default=1000, type=int, help="Nombre de cycles")
+        config.add_argument('-batch-size', default=100, type=int, help="Taille d'un sous-échantillon")
+        config.add_argument('-activation', '-act', default='tanh', choices=['sigmoid', 'tanh'], help="Fonction d'activation")
+        config.add_argument('-hidden-layers-sizes', '-sizes', default=[20], type=int, nargs='+', help="Tailles des couches cachées")
 
     def train(self, images, labels):
         if self.args.activation == 'tanh':
@@ -23,7 +25,7 @@ class MultilayerPerceptronClassifier(DigitClassifier):
         else:
             expected_outputs = [numpy.fromiter((labels[k] == i for i in range(10)), numpy.float64) for k in range(len(images))]
 
-        self.network.mini_batch_train(images, expected_outputs, self.args.it, numpy.float64(self.args.eta), verbose=True)
+        self.network.mini_batch_train(images, expected_outputs, self.args.epochs, self.args.batch_size, verbose=True)
         self.plot_error()
 
     def plot_error(self):
@@ -32,7 +34,6 @@ class MultilayerPerceptronClassifier(DigitClassifier):
         plt.plot(range(len(cost)), cost)
         plt.ylabel('erreur quadratique')
         plt.xlabel("cycle")
-        #plt.xscale('log')
         plt.savefig(self.args.outputs_folder + 'error.png')
 
     def predict(self, image):
@@ -47,15 +48,13 @@ class Network:
     f = {
         'sigmoid': utils.sigmoid,
         'tanh': utils.tanh,
-        'ntanh': utils.ntanh,
-        'nsig': lambda x: 1./(1+numpy.exp(-x))
+        'softplus' : utils.softplus
     }
 
     df = {
         'sigmoid': utils.sigmoid_prime,
         'tanh' : utils.tanh_prime,
-        'ntanh' : utils.ntanh_prime,
-        'nsig' : lambda x: self.f['nsig'](x)*(1-self.f['nsig'](x))
+        'softplus' : utils.sigmoid
     }
 
     def __init__(self, sizes, activation='sigmoid'):
@@ -75,8 +74,6 @@ class Network:
         self.cost = numpy.zeros(it)
         utils.timer_start()
         for i in range(it):
-            #if i >= 2000:
-            #    eta = 0.01*int(((0.001-0.1)/(20000-2000)*(i-2000)+0.1)/0.01)
             n = random.randint(0,len(inputs)-1)
             x, t = inputs[n], expected_outputs[n]
             z = self.feed_forward(x)
@@ -93,8 +90,7 @@ class Network:
                 utils.print_remaining_time(i, it)
                 print('coût', self.costk)
 
-    def mini_batch_train(self, inputs, expected_outputs, it=1000, eta=0.1, verbose=False, mini_batch_size=50):
-        epochs = it // mini_batch_size
+    def mini_batch_train(self, inputs, expected_outputs, epochs=1000, batch_size=50, eta=0.1, verbose=False):
         self.cost = numpy.zeros(epochs)
 
         nablaw, nablab = self.init_gradient()
@@ -102,7 +98,7 @@ class Network:
         utils.timer_start()
         for i in range(epochs):
             self.costk = 0.
-            for k in range(mini_batch_size):
+            for k in range(batch_size):
                 n = random.randint(0,len(inputs)-1)
                 x, t = inputs[n], expected_outputs[n]
                 z = self.feed_forward(x)
@@ -113,49 +109,11 @@ class Network:
                     nablaw[d] += nw[d]
                     nablab[d] += nb[d]
 
-            self.cost[i] = self.costk / mini_batch_size
+            self.cost[i] = self.costk / batch_size
 
             for d in range(self.depth):
-                self.layers[d].W -= eta / mini_batch_size * nablaw[d]
-                self.layers[d].b -= eta / mini_batch_size * nablab[d]
-
-            nablaw, nablab = self.init_gradient()
-
-            if verbose and i % (epochs // 100) == 0:
-                print('cycle', i, 'coût', self.cost[i])
-                utils.print_remaining_time(i, epochs)
-
-    def momentum_mini_batch_train(self, inputs, expected_outputs, it=1000, eta=0.1, verbose=False, mini_batch_size=50):
-        epochs = it // mini_batch_size
-        alpha = .01
-        self.cost = numpy.zeros(epochs)
-
-        nablaw, nablab = self.init_gradient()
-        prev_nablaw, prev_nablab = self.init_gradient()
-
-        utils.timer_start()
-        for i in range(epochs):
-            self.costk = 0.
-            for k in range(mini_batch_size):
-                n = random.randint(0,len(inputs)-1)
-                x, t = inputs[n], expected_outputs[n]
-                z = self.feed_forward(x)
-
-                nw, nb = self.backpropagate(x, z, t)
-
-                for d in range(self.depth):
-                    nablaw[d] += nw[d]
-                    nablab[d] += nb[d]
-
-            self.cost[i] = self.costk / mini_batch_size
-
-            for d in range(self.depth):
-                nablaw[d] /= mini_batch_size
-                nablab[d] /= mini_batch_size
-                self.layers[d].W -= (1-alpha) * eta * nablaw[d] + alpha * eta * prev_nablaw[d]
-                self.layers[d].b -= (1-alpha) * eta * nablab[d] + alpha * eta * prev_nablab[d]
-
-            prev_nablaw, prev_nablab = nablaw, nablab
+                self.layers[d].W -= eta / batch_size * nablaw[d]
+                self.layers[d].b -= eta / batch_size * nablab[d]
 
             nablaw, nablab = self.init_gradient()
 
@@ -195,9 +153,10 @@ class Network:
 
 class Layer:
     """
-        Leyer
+        Layer
     """
-    def __init__(self, insize, outsize, activation=utils.sigmoid):
+    def __init__(self, insize, outsize, activation=utils.sigmoid, use_bias=True):
+        self.use_bias = use_bias
         self.insize = insize
         self.outsize = outsize
         self.W = numpy.random.uniform(-1, 1, (outsize, insize))
@@ -205,7 +164,10 @@ class Layer:
         self.activation = activation
 
     def output(self, x):
-        self.w_inp = numpy.matmul(self.W, x) + self.b
+        if self.use_bias:
+            self.w_inp = numpy.matmul(self.W, x) + self.b
+        else:
+            self.w_inp = numpy.matmul(self.W, x)
         self.out = self.activation(self.w_inp)
         return self.out
 

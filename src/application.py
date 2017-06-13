@@ -116,9 +116,6 @@ class Application:
             result.write("\nerreur: " + str(round(self.wrong_class / self.tested * 100, 3)) + "%")
             if self.ambigu != 0:
                 result.write("\nambigu: " + str(round(self.ambigu / self.tested * 100, 3)) + "%")
-            for i in range(10):
-                result.write('\n'+str(self.digit_success[i]))
-                result.write('\n'+str(self.digits[i]))
 
     def train(self, classifier_name, models_folder):
         start = time.time()

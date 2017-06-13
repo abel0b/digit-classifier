@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from utils import sgn, sigmoid, timer_start, print_remaining_time
 
 
-class PerceptronClassifier(DigitClassifier):
+class MulticlassPerceptronClassifier(DigitClassifier):
     """
         PerceptronClassifier
     """
@@ -21,9 +21,9 @@ class PerceptronClassifier(DigitClassifier):
         self.perceptrons = [Perceptron(28 * 28, activation_function=self.activation[self.args.activation]) for i in range(10)]
 
     def add_arguments(self, config):
-        config.add_argument('--eta', default=0.01, type=float, help="Pas d'apprentissage")
-        config.add_argument('--it', default=1000, type=int, help="Nombre d'exemple d'apprentissage")
-        config.add_argument('--activation', default='sgn', choices=['sgn', 'sigmoid'], help="Fonction d'activation")
+        config.add_argument('-eta', '-e', default=0.01, type=float, help="Pas d'apprentissage")
+        config.add_argument('-it', '-i', default=1000, type=int, help="Nombre d'exemple d'apprentissage")
+        config.add_argument('-activation', '-act', default='sgn', choices=['sgn', 'sigmoid'], help="Fonction d'activation")
 
     def train(self, images, labels):
         timer_start()
