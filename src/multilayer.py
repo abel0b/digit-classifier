@@ -20,12 +20,10 @@ class MultilayerPerceptronClassifier(DigitClassifier):
         config.add_argument('-hidden-layers-sizes', '-sizes', default=[20], type=int, nargs='+', help="Tailles des couches cachées")
 
     def train(self, images, labels):
-        if self.args.activation == 'tanh':
-            expected_outputs = [numpy.fromiter((1 if labels[k] == i else -1 for i in range(10)), numpy.float64) for k in range(len(images))]
-        else:
-            expected_outputs = [numpy.fromiter((labels[k] == i for i in range(10)), numpy.float64) for k in range(len(images))]
+        expected_outputs = [numpy.fromiter((labels[k] == i for i in range(10)), numpy.float64) for k in range(len(labels))]
+        training_data = list(zip(images, expected_outputs))
 
-        self.network.mini_batch_train(images, expected_outputs, self.args.epochs, self.args.batch_size, verbose=True)
+        self.network.stochastic_gradient_descent(training_data, self.args.epochs, self.args.batch_size, verbose=True)
         self.plot_error()
 
     def plot_error(self):
@@ -90,36 +88,37 @@ class Network:
                 utils.print_remaining_time(i, it)
                 print('coût', self.costk)
 
-    def mini_batch_train(self, inputs, expected_outputs, epochs=1000, batch_size=50, eta=0.1, verbose=False):
+    def stochastic_gradient_descent(self, training_data, epochs=1000, batch_size=50, eta=0.1, verbose=False):
         self.cost = numpy.zeros(epochs)
 
-        nablaw, nablab = self.init_gradient()
-
         utils.timer_start()
-        for i in range(epochs):
-            self.costk = 0.
-            for k in range(batch_size):
-                n = random.randint(0,len(inputs)-1)
-                x, t = inputs[n], expected_outputs[n]
-                z = self.feed_forward(x)
+        for epoch in range(epochs):
+            mini_batches = self.get_mini_batches(training_data, batch_size)
+            for mini_batch in mini_batches:
+                nablaw, nablab = self.init_gradient()
+                for x,t in mini_batch:
+                    z = self.feed_forward(x)
+                    nw, nb, cost = self.backpropagate(x, z, t)
+                    self.cost[epoch] += cost
 
-                nw, nb = self.backpropagate(x, z, t)
+                    for d in range(self.depth):
+                        nablaw[d] += nw[d]
+                        nablab[d] += nb[d]
 
-                for d in range(self.depth):
-                    nablaw[d] += nw[d]
-                    nablab[d] += nb[d]
-
-            self.cost[i] = self.costk / batch_size
-
+            # Modification des poids
             for d in range(self.depth):
                 self.layers[d].W -= eta / batch_size * nablaw[d]
                 self.layers[d].b -= eta / batch_size * nablab[d]
 
-            nablaw, nablab = self.init_gradient()
 
-            if verbose and i % (epochs // 100) == 0:
-                print('cycle', i, 'coût', self.cost[i])
-                utils.print_remaining_time(i, epochs)
+            self.cost[epoch] /= len(training_data)
+            print('cycle', epoch, 'coût', self.cost[epoch])
+            utils.print_remaining_time(epoch, epochs)
+
+
+    def get_mini_batches(self, training_data, batch_size):
+        random.shuffle(training_data)
+        return [training_data[k:k+batch_size] for k in range(0, len(training_data), batch_size)]
 
     def init_gradient(self):
         nablaw = [numpy.zeros(self.layers[k].W.shape) for k in range(self.depth)]
@@ -146,9 +145,9 @@ class Network:
             nablaw[d] = numpy.outer(delta[d], a)
             nablab[d] = delta[d]
 
-        self.costk += .5*sum([(z[k]-t[k])**2 for k in range(self.sizes[-1])])
+        cost = .5*sum([(z[k]-t[k])**2 for k in range(self.sizes[-1])])
 
-        return nablaw, nablab
+        return nablaw, nablab, cost
 
 
 class Layer:
